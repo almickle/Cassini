@@ -10,16 +10,24 @@
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
 #include "GUI.h"
-//#include "Graphics.h"
+#include "Graphics.h"
 #include <d3d11.h>
 #include <tchar.h>
+#include <wrl/client.h>
 
+using namespace Microsoft::WRL;
 // Data
-static ID3D11Device*                g_pd3dDevice = nullptr;
-static ID3D11DeviceContext*         g_pd3dDeviceContext = nullptr;
-static IDXGISwapChain*              g_pSwapChain = nullptr;
-static ID3D11RenderTargetView*      g_mainRenderTargetView = nullptr;
-static UINT                         g_ResizeWidth = 0, g_ResizeHeight = 0;
+//static ComPtr<ID3D11Device>                  g_pd3dDevice = nullptr;
+//static ComPtr<ID3D11DeviceContext>           g_pd3dDeviceContext = nullptr;
+//static ComPtr<IDXGISwapChain>                g_pSwapChain = nullptr;
+//static ComPtr<ID3D11RenderTargetView>        g_mainRenderTargetView = nullptr;
+
+static ID3D11Device*                  g_pd3dDevice = nullptr;
+static ID3D11DeviceContext*           g_pd3dDeviceContext = nullptr;
+static IDXGISwapChain*                g_pSwapChain = nullptr;
+static ID3D11RenderTargetView*        g_mainRenderTargetView = nullptr;
+
+static UINT                           g_ResizeWidth = 0, g_ResizeHeight = 0;
 
 // Forward declarations of helper functions
 bool CreateDeviceD3D(HWND hWnd);
@@ -83,6 +91,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+    Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain, g_mainRenderTargetView);
+    GUI* gui = new GUI();
 
     // Load Fonts
     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
@@ -103,11 +113,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Our state
     bool show_demo_window = false;
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-    GUI* gui = new GUI();
-    //Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain, g_mainRenderTargetView);
-    
+    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);    
 
     // Main loop
     bool done = false;
@@ -156,8 +162,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
             }
         }
         else {
-            gui->RenderGUI();
-            //gfx->DrawTriangle();
+            //gui->RenderGUI();
         }
 
         // Rendering
@@ -165,6 +170,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
         const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
+        gfx->DrawTriangle();
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
         // Update and Render additional Platform Windows
@@ -216,7 +222,7 @@ bool CreateDeviceD3D(HWND hWnd)
     const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
     HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
     if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
+        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 0, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
     if (res != S_OK)
         return false;
 
