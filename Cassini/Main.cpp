@@ -17,11 +17,6 @@
 
 using namespace Microsoft::WRL;
 // Data
-//static ComPtr<ID3D11Device>                  g_pd3dDevice = nullptr;
-//static ComPtr<ID3D11DeviceContext>           g_pd3dDeviceContext = nullptr;
-//static ComPtr<IDXGISwapChain>                g_pSwapChain = nullptr;
-//static ComPtr<ID3D11RenderTargetView>        g_mainRenderTargetView = nullptr;
-
 static ID3D11Device*                  g_pd3dDevice = nullptr;
 static ID3D11DeviceContext*           g_pd3dDeviceContext = nullptr;
 static IDXGISwapChain*                g_pSwapChain = nullptr;
@@ -91,7 +86,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-    Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain, g_mainRenderTargetView);
+
+    // Instantiate 3D scene rendering class and custom gui
+    Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain);
     GUI* gui = new GUI();
 
     // Load Fonts
@@ -113,7 +110,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Our state
     bool show_demo_window = false;
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);    
+    ImVec4 clear_color = ImVec4(1.0f, 200.0f, 0.0f, 1.00f);    
 
     // Main loop
     bool done = false;
@@ -161,17 +158,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                 ImGui::End();
             }
         }
-        else {
-            //gui->RenderGUI();
-        }
 
-        // Rendering
+        // 3D Rendering
+        gui->RenderScene(gfx);
+
+        // UI Rendering
         ImGui::Render();
         const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
-        gfx->DrawTriangle();
+
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
 
         // Update and Render additional Platform Windows
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
