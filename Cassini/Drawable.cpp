@@ -10,6 +10,9 @@ Drawable::Draw(Graphics& gfx) const
   for (auto& b : binds) {
     b->Bind(gfx);
   }
+  for (auto& b : GetStaticBinds()) {
+    b->Bind(gfx);
+  }
   gfx.DrawIndexed(pIndexBuffer->GetCount());
 }
 
@@ -22,7 +25,7 @@ Drawable::AddBind(std::unique_ptr<Bindable> bind)
 }
 
 void
-Drawable::AddIndexBuffer(std::unique_ptr<IndexBuffer> ibuf) noexcept
+Drawable::AddIndexBuffer(std::unique_ptr<IndexBuffer> ibuf)
 {
   assert("Attempting to add index buffer a second time" &&
          pIndexBuffer == nullptr);

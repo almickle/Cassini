@@ -212,7 +212,6 @@ wWinMain(_In_ HINSTANCE hInstance,
     gfx->ClearBuffer();
     gui->RenderScene(gfx->GetSceneTexture());
     scene->UpdateScene(*gfx, gui->GetSceneSize());
-    scene->DrawScene(*gfx);
     // 3D Rendering //
 
     // UI Rendering //

@@ -7,10 +7,10 @@ class Scene
 public:
   Scene(Graphics& gfx);
   void UpdateScene(Graphics& gfx, ImVec2 size);
-  void DrawScene(Graphics& gfx);
 
 private:
-  vector<unique_ptr<class Cube>> cubes;
+  std::vector<std::unique_ptr<class Drawable>> drawables;
+  static constexpr size_t nDrawables = 180;
 
   float frameCount = 0;
 };
