@@ -46,7 +46,6 @@ public:
   XMMATRIX GetProjection();
 
   void CreateSceneTexture();
-  void RenderScene(ImVec2 size);
   void CreatDepthBuffer();
   void ClearBuffer();
   ImTextureID GetSceneTexture();
@@ -57,8 +56,7 @@ private:
   ComPtr<IDXGISwapChain> pSwap;
   ComPtr<ID3D11DepthStencilView> pDSV;
   ComPtr<ID3D11RenderTargetView> pTarget;
-
-  ID3D11ShaderResourceView* sceneTexture;
+  ComPtr<ID3D11ShaderResourceView> sceneTexture;
 
 private:
   XMMATRIX projection;

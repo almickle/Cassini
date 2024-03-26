@@ -120,6 +120,9 @@
     <ClCompile Include="ChiliException.cpp">
       <Filter>dxgi</Filter>
     </ClCompile>
+    <ClCompile Include="Primitive.cpp">
+      <Filter>Source Files\Drawables</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="GraphicsThrowMacros.h">
       <Filter>dxgi</Filter>
+    </ClInclude>
+    <ClInclude Include="Primitive.h">
+      <Filter>Header Files\Drawables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

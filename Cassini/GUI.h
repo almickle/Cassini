@@ -8,8 +8,10 @@ class GUI
                                  ImGuiWindowFlags_NoMove |
                                  ImGuiWindowFlags_NoSavedSettings;
   bool open = true;
+  ImVec2 sceneSize;
 
 public:
   GUI() {}
   void RenderScene(ImTextureID);
+  ImVec2 GetSceneSize();
 };

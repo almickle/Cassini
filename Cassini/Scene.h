@@ -5,13 +5,12 @@
 class Scene
 {
 public:
-  Scene(Graphics* pGfx);
-  void UpdateScene();
-  void DrawScene();
+  Scene(Graphics& gfx);
+  void UpdateScene(Graphics& gfx, ImVec2 size);
+  void DrawScene(Graphics& gfx);
 
 private:
   vector<unique_ptr<class Cube>> cubes;
-  Graphics* gfx;
 
   float frameCount = 0;
 };

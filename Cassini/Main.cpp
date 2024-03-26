@@ -156,7 +156,7 @@ wWinMain(_In_ HINSTANCE hInstance,
   // Instantiate 3D scene rendering class and custom gui
   Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain);
   GUI* gui = new GUI();
-  Scene* scene = new Scene(gfx);
+  Scene* scene = new Scene(*gfx);
 
   // Main loop
   bool done = false;
@@ -210,9 +210,10 @@ wWinMain(_In_ HINSTANCE hInstance,
 
     // 3D Rendering //
     gfx->ClearBuffer();
-    scene->UpdateScene();
-    scene->DrawScene();
     gui->RenderScene(gfx->GetSceneTexture());
+    scene->UpdateScene(*gfx, gui->GetSceneSize());
+    scene->DrawScene(*gfx);
+    // 3D Rendering //
 
     // UI Rendering //
     ImGui::Render();

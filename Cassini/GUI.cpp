@@ -11,7 +11,13 @@ GUI::RenderScene(ImTextureID sceneTexture)
     ImGuiCond_FirstUseEver);
   ImGui::SetNextWindowSize(ImVec2(600, 1000), ImGuiCond_FirstUseEver);
   ImGui::Begin("Cassini", &open);
-  ImVec2 size = ImGui::GetWindowSize();
-  ImGui::Image(sceneTexture, size);
+  sceneSize = ImGui::GetWindowSize();
+  ImGui::Image(sceneTexture, sceneSize);
   ImGui::End();
+}
+
+ImVec2
+GUI::GetSceneSize()
+{
+  return sceneSize;
 }
