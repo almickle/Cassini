@@ -1,11 +1,27 @@
 #include "Graphics.h"
 
-ImTextureID
-Graphics::CreateSceneTexture(ImVec2 size)
+void
+Graphics::DrawIndexed(UINT count)
 {
+  GFX_THROW_INFO_ONLY(pContext->DrawIndexed(count, 0u, 0u));
+}
 
-  CreatDepthStencilView();
+void
+Graphics::SetProjection(FXMMATRIX proj)
+{
+  projection = proj;
+}
 
+XMMATRIX
+Graphics::GetProjection()
+{
+  return projection;
+}
+
+void
+Graphics::CreateSceneTexture()
+{
+  HRESULT hr;
   ////// Render scene to texture ///////
 
   D3D11_TEXTURE2D_DESC textureDesc;
@@ -29,9 +45,9 @@ Graphics::CreateSceneTexture(ImVec2 size)
   textureDesc.MiscFlags = 0;
 
   // Create the texture
-  pDevice->CreateTexture2D(&textureDesc, NULL, &renderTargetTextureMap);
+  GFX_THROW_INFO(
+    pDevice->CreateTexture2D(&textureDesc, NULL, &renderTargetTextureMap));
 
-  ID3D11RenderTargetView* renderTargetViewMap;
   D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 
   // Setup the description of the render target view.
@@ -40,8 +56,10 @@ Graphics::CreateSceneTexture(ImVec2 size)
   renderTargetViewDesc.Texture2D.MipSlice = 0;
 
   // Create the render target view.
-  pDevice->CreateRenderTargetView(
-    renderTargetTextureMap, &renderTargetViewDesc, &renderTargetViewMap);
+  GFX_THROW_INFO(pDevice->CreateRenderTargetView(
+    renderTargetTextureMap, &renderTargetViewDesc, pTarget.GetAddressOf()));
+
+  // renderTargetTextureMap->Release();
 
   ID3D11ShaderResourceView* shaderResourceViewMap;
   D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -53,19 +71,11 @@ Graphics::CreateSceneTexture(ImVec2 size)
   shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
   // Create the shader resource view.
-  pDevice->CreateShaderResourceView(
-    renderTargetTextureMap, &shaderResourceViewDesc, &shaderResourceViewMap);
+  GFX_THROW_INFO(pDevice->CreateShaderResourceView(
+    renderTargetTextureMap, &shaderResourceViewDesc, &shaderResourceViewMap));
 
   // Bind render target
-  pContext->OMSetRenderTargets(1, &renderTargetViewMap, pDSV.Get());
-
-  ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
-  const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w,
-                                            clear_color.y * clear_color.w,
-                                            clear_color.z * clear_color.w,
-                                            clear_color.w };
-  pContext->ClearRenderTargetView(renderTargetViewMap, clear_color_with_alpha);
-  pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+  pContext->OMSetRenderTargets(1, pTarget.GetAddressOf(), pDSV.Get());
 
   pContext->PSSetShaderResources(
     0, 1, &shaderResourceViewMap); // Draw the map to the square
@@ -79,9 +89,21 @@ Graphics::CreateSceneTexture(ImVec2 size)
   viewport.TopLeftY = 0;
   pContext->RSSetViewports(1, &viewport);
 
-  RenderScene(size);
+  sceneTexture = shaderResourceViewMap;
+}
 
-  return shaderResourceViewMap;
+void
+Graphics::ClearBuffer()
+{
+  const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  pContext->ClearRenderTargetView(pTarget.Get(), clearColor);
+  pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
+}
+
+ImTextureID
+Graphics::GetSceneTexture()
+{
+  return sceneTexture;
 }
 
 void
@@ -250,15 +272,17 @@ Graphics::RenderScene(ImVec2 size)
 }
 
 void
-Graphics::CreatDepthStencilView()
+Graphics::CreatDepthBuffer()
 {
+  HRESULT hr;
+
   // create depth stensil state
   D3D11_DEPTH_STENCIL_DESC dsDesc = {};
   dsDesc.DepthEnable = TRUE;
   dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
   dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
   ComPtr<ID3D11DepthStencilState> pDSState;
-  pDevice->CreateDepthStencilState(&dsDesc, &pDSState);
+  GFX_THROW_INFO(pDevice->CreateDepthStencilState(&dsDesc, &pDSState));
 
   // bind depth state
   pContext->OMSetDepthStencilState(pDSState.Get(), 1u);
@@ -275,12 +299,129 @@ Graphics::CreatDepthStencilView()
   descDepth.SampleDesc.Quality = 0u;
   descDepth.Usage = D3D11_USAGE_DEFAULT;
   descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-  pDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil);
+  GFX_THROW_INFO(pDevice->CreateTexture2D(&descDepth, nullptr, &pDepthStencil));
 
   // create view of depth stensil texture
   D3D11_DEPTH_STENCIL_VIEW_DESC descDSV = {};
   descDSV.Format = DXGI_FORMAT_D32_FLOAT;
   descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
   descDSV.Texture2D.MipSlice = 0u;
-  pDevice->CreateDepthStencilView(pDepthStencil.Get(), &descDSV, &pDSV);
+  GFX_THROW_INFO(
+    pDevice->CreateDepthStencilView(pDepthStencil.Get(), &descDSV, &pDSV));
+}
+
+// Graphics exception stuff
+Graphics::HrException::HrException(int line,
+                                   const char* file,
+                                   HRESULT hr,
+                                   std::vector<std::string> infoMsgs) noexcept
+  : Exception(line, file)
+  , hr(hr)
+{
+  // join all info messages with newlines into single string
+  for (const auto& m : infoMsgs) {
+    info += m;
+    info.push_back('\n');
+  }
+  // remove final newline if exists
+  if (!info.empty()) {
+    info.pop_back();
+  }
+}
+
+const char*
+Graphics::HrException::what() const noexcept
+{
+  std::ostringstream oss;
+  oss << GetType() << std::endl
+      << "[Error Code] 0x" << std::hex << std::uppercase << GetErrorCode()
+      << std::dec << " (" << (unsigned long)GetErrorCode() << ")" << std::endl
+      << "[Error String] " << GetErrorString() << std::endl
+      << "[Description] " << GetErrorDescription() << std::endl;
+  if (!info.empty()) {
+    oss << "\n[Error Info]\n" << GetErrorInfo() << std::endl << std::endl;
+  }
+  oss << GetOriginString();
+  whatBuffer = oss.str();
+  return whatBuffer.c_str();
+}
+
+const char*
+Graphics::HrException::GetType() const noexcept
+{
+  return "Chili Graphics Exception";
+}
+
+HRESULT
+Graphics::HrException::GetErrorCode() const noexcept
+{
+  return hr;
+}
+
+std::string
+Graphics::HrException::GetErrorString() const noexcept
+{
+  return DXGetErrorStringA(hr);
+}
+
+std::string
+Graphics::HrException::GetErrorDescription() const noexcept
+{
+  char buf[512];
+  DXGetErrorDescriptionA(hr, buf, sizeof(buf));
+  return buf;
+}
+
+std::string
+Graphics::HrException::GetErrorInfo() const noexcept
+{
+  return info;
+}
+
+const char*
+Graphics::DeviceRemovedException::GetType() const noexcept
+{
+  return "Chili Graphics Exception [Device Removed] "
+         "(DXGI_ERROR_DEVICE_REMOVED)";
+}
+Graphics::InfoException::InfoException(
+  int line,
+  const char* file,
+  std::vector<std::string> infoMsgs) noexcept
+  : Exception(line, file)
+{
+  // join all info messages with newlines into single string
+  for (const auto& m : infoMsgs) {
+    info += m;
+    info.push_back('\n');
+  }
+  // remove final newline if exists
+  if (!info.empty()) {
+    info.pop_back();
+  }
+}
+
+const char*
+Graphics::InfoException::what() const noexcept
+{
+  std::ostringstream oss;
+  oss << GetType() << std::endl
+      << "\n[Error Info]\n"
+      << GetErrorInfo() << std::endl
+      << std::endl;
+  oss << GetOriginString();
+  whatBuffer = oss.str();
+  return whatBuffer.c_str();
+}
+
+const char*
+Graphics::InfoException::GetType() const noexcept
+{
+  return "Chili Graphics Info Exception";
+}
+
+std::string
+Graphics::InfoException::GetErrorInfo() const noexcept
+{
+  return info;
 }

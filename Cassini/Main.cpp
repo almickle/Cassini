@@ -12,6 +12,7 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
+#include "Scene.h"
 #include <d3d11.h>
 #include <tchar.h>
 #include <wrl/client.h>
@@ -121,10 +122,6 @@ wWinMain(_In_ HINSTANCE hInstance,
   ImGui_ImplWin32_Init(hwnd);
   ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
-  // Instantiate 3D scene rendering class and custom gui
-  Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain);
-  GUI* gui = new GUI();
-
   // Load Fonts
   // - If no fonts are loaded, dear imgui will use the default font. You can
   // also load multiple fonts and use ImGui::PushFont()/PopFont() to select
@@ -155,6 +152,11 @@ wWinMain(_In_ HINSTANCE hInstance,
   bool show_demo_window = false;
   bool show_another_window = false;
   ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.00f);
+
+  // Instantiate 3D scene rendering class and custom gui
+  Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain);
+  GUI* gui = new GUI();
+  Scene* scene = new Scene(gfx);
 
   // Main loop
   bool done = false;
@@ -207,8 +209,10 @@ wWinMain(_In_ HINSTANCE hInstance,
     }
 
     // 3D Rendering //
-    gui->RenderScene(gfx);
-    // 3D Rendering //
+    gfx->ClearBuffer();
+    scene->UpdateScene();
+    scene->DrawScene();
+    gui->RenderScene(gfx->GetSceneTexture());
 
     // UI Rendering //
     ImGui::Render();
@@ -220,7 +224,6 @@ wWinMain(_In_ HINSTANCE hInstance,
       1, &g_mainRenderTargetView, nullptr);
     g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView,
                                                clear_color_with_alpha);
-
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     // UI Rendering //
 
