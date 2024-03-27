@@ -19,6 +19,18 @@ Graphics::GetProjection()
 }
 
 void
+Graphics::SetCamera(DirectX::FXMMATRIX cam) noexcept
+{
+  camera = cam;
+}
+
+DirectX::XMMATRIX
+Graphics::GetCamera() const noexcept
+{
+  return camera;
+}
+
+void
 Graphics::CreateSceneTexture()
 {
   HRESULT hr;

@@ -27,14 +27,14 @@
 #include "ChiliException.h"
 #include <sstream>
 
-ChiliException::ChiliException(int line, const char* file) noexcept
+ChiliException::ChiliException(int line, const char* file)
   : line(line)
   , file(file)
 {
 }
 
 const char*
-ChiliException::what() const noexcept
+ChiliException::what() const
 {
   std::ostringstream oss;
   oss << GetType() << std::endl << GetOriginString();
@@ -43,25 +43,25 @@ ChiliException::what() const noexcept
 }
 
 const char*
-ChiliException::GetType() const noexcept
+ChiliException::GetType() const
 {
   return "Chili Exception";
 }
 
 int
-ChiliException::GetLine() const noexcept
+ChiliException::GetLine() const
 {
   return line;
 }
 
 const std::string&
-ChiliException::GetFile() const noexcept
+ChiliException::GetFile() const
 {
   return file;
 }
 
 std::string
-ChiliException::GetOriginString() const noexcept
+ChiliException::GetOriginString() const
 {
   std::ostringstream oss;
   oss << "[File] " << file << std::endl << "[Line] " << line;

@@ -37,13 +37,15 @@ public:
 
   Graphics(const Graphics&) = delete;
   Graphics& operator=(const Graphics&) = delete;
-  ~Graphics() = default;
+  ~Graphics();
 
   friend class Bindable;
 
   void DrawIndexed(UINT count);
   void SetProjection(FXMMATRIX proj);
   XMMATRIX GetProjection();
+  void SetCamera(DirectX::FXMMATRIX cam) noexcept;
+  XMMATRIX GetCamera() const noexcept;
 
   void CreateSceneTexture();
   void CreatDepthBuffer();
@@ -60,6 +62,8 @@ private:
 
 private:
   XMMATRIX projection;
+  XMMATRIX camera;
+
   float textureSize = 1000.0f;
   int frameCount = 0;
 

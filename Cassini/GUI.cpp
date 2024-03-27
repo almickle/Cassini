@@ -5,13 +5,14 @@
 void
 GUI::RenderScene(ImTextureID sceneTexture)
 {
-  ImGui::DockSpaceOverViewport(viewport);
-  ImGui::SetNextWindowPos(
-    ImVec2(viewport->WorkPos.x + 650, viewport->WorkPos.y + 20),
-    ImGuiCond_FirstUseEver);
+  ImGui::DockSpaceOverViewport(viewport, dockFlags);
+  bool showDemo = true;
+  // ImGui::ShowDemoWindow(&showDemo);
   ImGui::SetNextWindowSize(ImVec2(600, 1000), ImGuiCond_FirstUseEver);
-  ImGui::Begin("Cassini", &open);
-  sceneSize = ImGui::GetWindowSize();
+  ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+  ImGui::Begin("Cassini", &open, flags);
+  ImGui::PopStyleVar();
+  sceneSize = ImGui::GetWindowContentRegionMax();
   ImGui::Image(sceneTexture, sceneSize);
   ImGui::End();
 }

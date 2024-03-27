@@ -31,12 +31,12 @@
 class ChiliException : public std::exception
 {
 public:
-  ChiliException(int line, const char* file) noexcept;
-  const char* what() const noexcept override;
-  virtual const char* GetType() const noexcept;
-  int GetLine() const noexcept;
-  const std::string& GetFile() const noexcept;
-  std::string GetOriginString() const noexcept;
+  ChiliException(int line, const char* file);
+  const char* what() const override;
+  virtual const char* GetType() const;
+  int GetLine() const;
+  const std::string& GetFile() const;
+  std::string GetOriginString() const;
 
 private:
   int line;

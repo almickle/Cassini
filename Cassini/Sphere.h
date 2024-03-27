@@ -1,4 +1,5 @@
 #pragma once
+#include "ChiliMath.h"
 #include "IndexedTriangleList.h"
 #include <DirectXMath.h>
 

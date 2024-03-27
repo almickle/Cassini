@@ -24,6 +24,8 @@ static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
 static IDXGISwapChain* g_pSwapChain = nullptr;
 static ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
+GDIPlusManager gdipm;
+
 static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
 
 // Forward declarations of helper functions
@@ -188,6 +190,12 @@ wWinMain(_In_ HINSTANCE hInstance,
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
+    // 3D Rendering //
+    gfx->ClearBuffer();
+    gui->RenderScene(gfx->GetSceneTexture());
+    scene->UpdateScene(*gfx, gui->GetSceneSize());
+    // 3D Rendering //
+
     // 1. Show the big demo window (Most of the sample code is in
     // ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear
     // ImGui!).
@@ -207,12 +215,6 @@ wWinMain(_In_ HINSTANCE hInstance,
         ImGui::End();
       }
     }
-
-    // 3D Rendering //
-    gfx->ClearBuffer();
-    gui->RenderScene(gfx->GetSceneTexture());
-    scene->UpdateScene(*gfx, gui->GetSceneSize());
-    // 3D Rendering //
 
     // UI Rendering //
     ImGui::Render();
