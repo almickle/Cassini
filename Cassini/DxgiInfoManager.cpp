@@ -4,8 +4,6 @@
 #include <dxgidebug.h>
 #include <memory>
 
-#pragma comment(lib, "dxguid.lib")
-
 DxgiInfoManager::DxgiInfoManager()
 {
   // define function signature of DXGIGetDebugInterface

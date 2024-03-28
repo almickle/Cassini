@@ -31,15 +31,11 @@ public:
 
     infoManager.Set();
 
+    FetchResolution();
+
     CreatDepthBuffer();
     CreateSceneTexture();
   }
-
-  Graphics(const Graphics&) = delete;
-  Graphics& operator=(const Graphics&) = delete;
-  ~Graphics();
-
-  friend class Bindable;
 
   void DrawIndexed(UINT count);
   void SetProjection(FXMMATRIX proj);
@@ -57,17 +53,28 @@ private:
   ComPtr<ID3D11DeviceContext> pContext;
   ComPtr<IDXGISwapChain> pSwap;
   ComPtr<ID3D11DepthStencilView> pDSV;
-  ComPtr<ID3D11RenderTargetView> pTarget;
-  ComPtr<ID3D11ShaderResourceView> sceneTexture;
+  ComPtr<ID3D11RenderTargetView> pSceneTarget;
+  ComPtr<ID3D11ShaderResourceView> pSceneTexture;
 
 private:
   XMMATRIX projection;
   XMMATRIX camera;
 
-  float textureSize = 1000.0f;
   int frameCount = 0;
 
+private:
+  struct Resolution
+  {
+    int width;
+    int height;
+  } resolution = { 0, 0 };
+  void FetchResolution();
+
 public:
+  Resolution GetResolution() const;
+
+public:
+  DxgiInfoManager infoManager;
   class Exception : public ChiliException
   {
     using ChiliException::ChiliException;
@@ -113,5 +120,4 @@ public:
   private:
     std::string reason;
   };
-  DxgiInfoManager infoManager;
 };

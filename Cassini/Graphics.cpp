@@ -45,8 +45,8 @@ Graphics::CreateSceneTexture()
   // Setup the texture description.
   // We will need to have this texture bound as a render target AND a shader
   // resource
-  textureDesc.Width = textureSize;
-  textureDesc.Height = textureSize;
+  textureDesc.Width = resolution.width;
+  textureDesc.Height = resolution.height;
   textureDesc.MipLevels = 1;
   textureDesc.ArraySize = 1;
   textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
@@ -68,8 +68,9 @@ Graphics::CreateSceneTexture()
   renderTargetViewDesc.Texture2D.MipSlice = 0;
 
   // Create the render target view.
-  GFX_THROW_INFO(pDevice->CreateRenderTargetView(
-    renderTargetTextureMap, &renderTargetViewDesc, pTarget.GetAddressOf()));
+  GFX_THROW_INFO(pDevice->CreateRenderTargetView(renderTargetTextureMap,
+                                                 &renderTargetViewDesc,
+                                                 pSceneTarget.GetAddressOf()));
 
   // renderTargetTextureMap->Release();
 
@@ -85,17 +86,14 @@ Graphics::CreateSceneTexture()
   GFX_THROW_INFO(
     pDevice->CreateShaderResourceView(renderTargetTextureMap,
                                       &shaderResourceViewDesc,
-                                      sceneTexture.GetAddressOf()));
-
-  //// Bind render target
-  // pContext->OMSetRenderTargets(1, pTarget.GetAddressOf(), pDSV.Get());
+                                      pSceneTexture.GetAddressOf()));
 
   pContext->PSSetShaderResources(
-    0, 1, sceneTexture.GetAddressOf()); // Draw the map to the square
+    0, 1, pSceneTexture.GetAddressOf()); // Draw the map to the square
 
   D3D11_VIEWPORT viewport;
-  viewport.Width = textureSize;
-  viewport.Height = textureSize;
+  viewport.Width = resolution.width;
+  viewport.Height = resolution.height;
   viewport.MinDepth = 0;
   viewport.MaxDepth = 1;
   viewport.TopLeftX = 0;
@@ -104,19 +102,51 @@ Graphics::CreateSceneTexture()
 }
 
 void
+Graphics::FetchResolution()
+{
+  HRESULT hr;
+  IDXGIFactory* factory;
+  GFX_THROW_INFO(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory));
+
+  IDXGIAdapter* adapter;
+  GFX_THROW_INFO(factory->EnumAdapters(0, &adapter));
+
+  IDXGIOutput* output;
+  GFX_THROW_INFO(adapter->EnumOutputs(0, &output));
+
+  DXGI_OUTPUT_DESC desc;
+  GFX_THROW_INFO(output->GetDesc(&desc));
+
+  resolution.width =
+    desc.DesktopCoordinates.right - desc.DesktopCoordinates.left;
+  resolution.height =
+    desc.DesktopCoordinates.bottom - desc.DesktopCoordinates.top;
+
+  output->Release();
+  adapter->Release();
+  factory->Release();
+}
+
+Graphics::Resolution
+Graphics::GetResolution() const
+{
+  return resolution;
+}
+
+void
 Graphics::ClearBuffer()
 {
   // Bind render target
-  pContext->OMSetRenderTargets(1, pTarget.GetAddressOf(), pDSV.Get());
+  pContext->OMSetRenderTargets(1, pSceneTarget.GetAddressOf(), pDSV.Get());
   const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  pContext->ClearRenderTargetView(pTarget.Get(), clearColor);
+  pContext->ClearRenderTargetView(pSceneTarget.Get(), clearColor);
   pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
 ImTextureID
 Graphics::GetSceneTexture()
 {
-  return sceneTexture.Get();
+  return pSceneTexture.Get();
 }
 
 void
@@ -138,8 +168,8 @@ Graphics::CreatDepthBuffer()
   // create depth stensil texture
   ComPtr<ID3D11Texture2D> pDepthStencil;
   D3D11_TEXTURE2D_DESC descDepth = {};
-  descDepth.Width = textureSize;
-  descDepth.Height = textureSize;
+  descDepth.Width = resolution.width;
+  descDepth.Height = resolution.height;
   descDepth.MipLevels = 1u;
   descDepth.ArraySize = 1u;
   descDepth.Format = DXGI_FORMAT_D32_FLOAT;

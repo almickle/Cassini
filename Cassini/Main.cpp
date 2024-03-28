@@ -272,7 +272,7 @@ CreateDeviceD3D(HWND hWnd)
   sd.Windowed = TRUE;
   sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-  UINT createDeviceFlags = 0;
+  UINT createDeviceFlags = D3D11_CREATE_DEVICE_DEBUG;
   // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
   D3D_FEATURE_LEVEL featureLevel;
   const D3D_FEATURE_LEVEL featureLevelArray[2] = {
