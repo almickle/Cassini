@@ -56,6 +56,10 @@ private:
   ComPtr<ID3D11RenderTargetView> pSceneTarget;
   ComPtr<ID3D11ShaderResourceView> pSceneTexture;
 
+public:
+  ComPtr<ID3D11Device> GetDevice() { return pDevice; };
+  ComPtr<ID3D11DeviceContext> GetContext() { return pContext; };
+
 private:
   XMMATRIX projection;
   XMMATRIX camera;

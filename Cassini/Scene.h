@@ -1,4 +1,5 @@
 #pragma once
+#include "Entity.h"
 #include "GDIPlusManager.h"
 #include "Graphics.h"
 #include <algorithm>
@@ -8,12 +9,15 @@
 class Scene
 {
 public:
-  Scene(Graphics& gfx);
-  void UpdateScene(Graphics& gfx, ImVec2 size);
+	Scene( Graphics& gfx );
+	void UpdateScene( Graphics& gfx, ImVec2 size );
+	void AddEntity( Entity& entity );
 
 private:
-  float frameCount = 0;
-  float frameRate;
-  float speedFactor = 1;
-  float dt = 0.0f;
+	vector<Entity> entities;
+private:
+	float frameCount = 0;
+	float frameRate = 0;
+	float speedFactor = 1;
+	float dt = 0.0f;
 };
