@@ -1,69 +1,80 @@
 #pragma once
 #include "Bindables.h"
+#include "DataTypes.h"
 #include "Graphics.h"
-#include "Vertex.h"
+#include "ResourceManager.h"
 
 class Entity
 {
 public:
-	Entity(Graphics& gfx)
-	{
-		LoadMesh("Models\\teapot.txt");
-		vertexBuffer = new VertexBuffer(gfx, vertices);
-		indexBuffer = new IndexBuffer(gfx, indices);
-		topology = new Topology();
-		instanceBuffer = new ConstantBuffer(gfx);
-		//rasterizer = new Rasterizer(gfx);
-		vertexShader = new VertexShader(gfx);
-		pixelShader = new PixelShader(gfx);
-		inputLayout = new InputLayout(gfx, vertexShader->GetBlob());
-	};
+	Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	void Update(Graphics& gfx)
-	{
-		float rotation[3] = { 0.0f, 0.0f, 0.0f };
-		float scale[3] = { 1.0f, 1.0f, 1.0f };
-		float translation[3] = { 0.0f, 0.0f, 10.0f };
-		const ConstantBuffer::InstanceTransforms transforms = {
-			XMMatrixTranspose(
-				XMMatrixRotationRollPitchYaw(rotation[0], rotation[1], rotation[2]) *
-				XMMatrixScaling(scale[0], scale[1], scale[2]) *
-				XMMatrixTranslation(translation[0], translation[1], translation[2])
-			),
-			XMMatrixTranspose(XMMatrixIdentity()),
-			XMMatrixTranspose(gfx.GetProjection())
-		};
-		instanceBuffer->Update(gfx, transforms);
+	template<typename T>
+	string AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, T cbData);
+	void Draw(Graphics& gfx);
+	void Bind(Graphics& gfx, ResourceManager& manager);
+	string GetResourceID(int index) {
+		return resourceIDs[index];
 	}
+public:
+	void MoveX(float x);
+	void MoveY(float y);
+	void MoveZ(float z);
+	void Rotate(float x, float y, float z);
 
-	void Bind(Graphics& gfx)
-	{
-		vertexBuffer->Bind(gfx);
-		indexBuffer->Bind(gfx);
-		inputLayout->Bind(gfx);
-		vertexShader->Bind(gfx);
-		pixelShader->Bind(gfx);
-		instanceBuffer->Bind(gfx);
-		topology->Bind(gfx);
-	}
-
-	void Draw(Graphics& gfx)
-	{
-		gfx.GetContext()->DrawIndexed(indices.size(), 0, 0);
-	};
 private:
 	void LoadMesh(string path);
+	void UpdateVSData(Graphics& gfx, ResourceManager& manager, XMMATRIX cbData);
+	void UpdatePSData(Graphics& gfx, ResourceManager& manager, PhongLightingData cbData);
+
 private:
+	string entityID;
+	string instanceID;
+	vector<string> resourceIDs;
 	vector<Vertex> vertices;
 	vector<unsigned short> indices;
-private:
-	VertexBuffer* vertexBuffer;
-	IndexBuffer* indexBuffer;
-	InputLayout* inputLayout;
-	Topology* topology;
-	PixelShader* pixelShader;
-	VertexShader* vertexShader;
-	ConstantBuffer* instanceBuffer;
-	Rasterizer* rasterizer;
-};
+	LPWSTR VSPath;
+	LPWSTR PSPath;
+	XMFLOAT3 modelColor;
 
+public:
+	XMMATRIX GetTransformation() {
+		return transformation;
+	}
+	void CalculateTransformation() {
+		transformation = XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
+			XMMatrixScaling(scale.x, scale.y, scale.z) *
+			XMMatrixTranslation(position.x, position.y, position.z);
+	}
+	XMFLOAT3 GetPosition() {
+		return position;
+	}
+	void SetPosition(XMFLOAT3 in_position) {
+		position = in_position;
+		CalculateTransformation();
+	}
+	void SetOrientation(XMFLOAT3 in_orientation) {
+		orientation = in_orientation;
+		CalculateTransformation();
+	}
+	void SetScale(XMFLOAT3 in_scale)
+	{
+		scale = in_scale;
+		CalculateTransformation();
+	}
+	void Update(Graphics& gfx, ResourceManager& manager) {
+		UpdateVSData(gfx, manager, GetTransformation());
+		//UpdatePSData(gfx, manager, gfx.GetLighting());
+	}
+	void OverrideTransform(XMMATRIX transform) {
+		transformation = transform;
+	}
+private:
+	XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 orientation = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };
+	XMMATRIX transformation =
+		XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
+		XMMatrixScaling(scale.x, scale.y, scale.z) *
+		XMMatrixTranslation(position.x, position.y, position.z);
+};

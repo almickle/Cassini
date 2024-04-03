@@ -1,6 +1,81 @@
 #include "Entity.h"
+#include "InstanceData.h"
+#include "Utility.h"
 #include <fstream>
 #include <iostream>
+
+using namespace utility;
+
+Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology)
+{
+	LoadMesh(meshPath);
+	entityID = GenerateUniqueID();
+	instanceID = GenerateUniqueID();
+	manager.RegisterEntity(entityID);
+	manager.RegisterInstance(entityID, instanceID);
+	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, topology);
+	manager.BindStaticResources(gfx, entityID);
+
+	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
+	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
+	//LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
+	/*TestLightBuffer lightBuffer = {
+		{ 7.0f, 7.0f, 7.0f, 7.0f },
+		{ 7.0f, 7.0f, 7.0f, 7.0f },
+		{ 7.0f, 7.0f, 7.0f, 7.0f },
+		{ 7.0f, 7.0f, 7.0f, 7.0f }
+	};*/
+	//AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
+}
+
+void Entity::Draw(Graphics& gfx)
+{
+	gfx.GetContext()->DrawIndexed(indices.size(), 0, 0);
+};
+
+void Entity::Bind(Graphics& gfx, ResourceManager& manager) {
+	manager.BindStaticResources(gfx, entityID);
+	manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(0));
+}
+
+template<typename T>
+string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, T cbData) {
+	string resourceID = GenerateUniqueID();
+	resourceIDs.push_back(resourceID);
+	manager.CreateConstantBuffer(gfx, entityID, instanceID, resourceID, type, cbData);
+	manager.BindConstantBuffer(gfx, entityID, instanceID, resourceID);
+	return resourceID;
+}
+
+void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, XMMATRIX transform)
+{
+	string resourceID = GetResourceID(0);
+	ModelViewProjection buffer = { XMMatrixTranspose(transform), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
+	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);
+}
+
+void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, PhongLightingData lightData)
+{
+	/*string resourceID = GetResourceID(1);
+	LightBuffer buffer = { lightData, modelColor };
+	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);*/
+}
+
+void Entity::MoveX(float x) {
+	orientation.x += x;
+}
+
+void Entity::MoveY(float y) {
+	orientation.y += y;
+}
+
+void Entity::MoveZ(float z) {
+	orientation.z += z;
+}
+
+void Entity::Rotate(float x, float y, float z) {
+
+}
 
 void Entity::LoadMesh(string path)
 {

@@ -1,4 +1,4 @@
-cbuffer InstanceTransforms
+cbuffer VSConstantData
 {
    matrix worldMatrix;
    matrix viewMatrix;

@@ -1,51 +1,58 @@
 #pragma once
-#include "Graphics.h"
+#include "GraphicsResource.h"
+#include "InstanceData.h"
 
-class ConstantBuffer
-{
+// Template class for specific constant buffer types
+template<typename T>
+class ConstantBuffer : public InstanceResource {
 public:
-	ConstantBuffer( Graphics& gfx )
+	ConstantBuffer(Graphics& gfx, UINT type, const T& cbData)
 	{
-		D3D11_BUFFER_DESC cbDesc = { };
+		INFOMAN(gfx);
+		shaderType = type;
+		D3D11_BUFFER_DESC cbDesc = {};
 		cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		cbDesc.ByteWidth = sizeof( InstanceTransforms ); // Size of the constant buffer structure
+		cbDesc.ByteWidth = sizeof(T); // Size of the constant buffer structure
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
 		cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-		gfx.GetDevice()->CreateBuffer( &cbDesc, nullptr, pConstBuffer.GetAddressOf() );
+		D3D11_SUBRESOURCE_DATA sd = {};
+		sd.pSysMem = &cbData;
+
+		GFX_THROW_INFO(gfx.GetDevice()->CreateBuffer(&cbDesc, &sd, pConstBuffer.GetAddressOf()));
 	}
 
-	struct InstanceTransforms
+	void Bind(Graphics& gfx, UINT slot = 0u) override
 	{
-		XMMATRIX worldMatrix; // World transformation matrix
-		XMMATRIX viewMatrix; // View transformation matrix
-		XMMATRIX projectionMatrix; // Projection transformation matrix
-	};
-
-	void Bind( Graphics& gfx )
-	{
-		gfx.GetContext()->VSSetConstantBuffers( 0, 1, pConstBuffer.GetAddressOf() );
-		bound = true;
+		INFOMAN(gfx);
+		switch (shaderType) {
+		case 0:
+			GFX_THROW_INFO_ONLY(gfx.GetContext()->VSSetConstantBuffers(slot, 1u, pConstBuffer.GetAddressOf()));
+			break;
+		case 1:
+			GFX_THROW_INFO_ONLY(gfx.GetContext()->CSSetConstantBuffers(slot, 1u, pConstBuffer.GetAddressOf()));
+			break;
+		case 2:
+			GFX_THROW_INFO_ONLY(gfx.GetContext()->PSSetConstantBuffers(slot, 1u, pConstBuffer.GetAddressOf()));
+			break;
+		default:
+			break;
+		}
 	}
 
-	void Update( Graphics& gfx, const InstanceTransforms& cbData )
+	void Update(Graphics& gfx, const T& cbData)
 	{
-		if (bound == false)
-		{
-			return;
-		};
+		INFOMAN(gfx);
 		// Map the constant buffer
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		gfx.GetContext()->Map( pConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource );
-
+		GFX_THROW_INFO(gfx.GetContext()->Map(pConstBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 		// Copy data to the constant buffer
-		memcpy( mappedResource.pData, &cbData, sizeof( InstanceTransforms ) );
+		memcpy(mappedResource.pData, &cbData, sizeof(T));
 
 		// Unmap the constant buffer
-		gfx.GetContext()->Unmap( pConstBuffer.Get(), 0 );
+		GFX_THROW_INFO_ONLY(gfx.GetContext()->Unmap(pConstBuffer.Get(), 0));
 	}
 
 private:
 	ComPtr<ID3D11Buffer> pConstBuffer;
-	bool bound = false;
 };

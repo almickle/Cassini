@@ -6,28 +6,28 @@ Graphics::DrawIndexed(UINT count)
 	GFX_THROW_INFO_ONLY(pContext->DrawIndexed(count, 0u, 0u));
 }
 
+
+XMMATRIX
+Graphics::GetProjection() const
+{
+	return projection;
+}
 void
-Graphics::SetProjection(FXMMATRIX proj)
+Graphics::SetProjection(XMMATRIX proj)
 {
 	projection = proj;
 }
 
 XMMATRIX
-Graphics::GetProjection()
+Graphics::GetCameraView() const
 {
-	return projection;
+	return XMMatrixInverse(nullptr, cameraTransform);
 }
 
 void
-Graphics::SetCamera(DirectX::FXMMATRIX cam) noexcept
+Graphics::SetCameraTransform(XMMATRIX tansform)
 {
-	camera = cam;
-}
-
-DirectX::XMMATRIX
-Graphics::GetCamera() const noexcept
-{
-	return camera;
+	cameraTransform = tansform;
 }
 
 void
@@ -72,7 +72,7 @@ Graphics::CreateSceneTexture()
 		&renderTargetViewDesc,
 		pSceneTarget.GetAddressOf()));
 
-	// renderTargetTextureMap->Release();
+	renderTargetTextureMap->Release();
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 

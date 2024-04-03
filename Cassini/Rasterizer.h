@@ -1,7 +1,7 @@
 #pragma once
-#include "Graphics.h"
+#include "GraphicsResource.h"
 
-class Rasterizer
+class Rasterizer : public GraphicsResource
 {
 public:
 	Rasterizer(Graphics& gfx) {
@@ -13,12 +13,12 @@ public:
 		gfx.GetDevice()->CreateRasterizerState(&rasterizerDesc, pRasterizer.GetAddressOf());
 	}
 
-	void Bind(Graphics& gfx) {
+	void Bind(Graphics& gfx)  const override
+	{
 		gfx.GetContext()->RSSetState(pRasterizer.Get());
 	}
 
 private:
 	ComPtr<ID3D11RasterizerState> pRasterizer;
-
 };
 

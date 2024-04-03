@@ -1,3 +1,5 @@
 #pragma once
-class Sampler
+#include "GraphicsResource.h"
+
+class Sampler : public GraphicsResource
 {};

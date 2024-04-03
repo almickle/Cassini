@@ -1,22 +1,24 @@
 #pragma once
-#include "Graphics.h"
+#include "GraphicsResource.h"
+#include "Utility.h"
 
-class VertexShader
+class VertexShader : public GraphicsResource
 {
 public:
-	VertexShader( Graphics& gfx )
+	VertexShader(Graphics& gfx, string path)
 	{
-		D3DReadFileToBlob( L"VertexShader.cso", &pBlob );
-		gfx.GetDevice()->CreateVertexShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader );
+
+		LPWSTR converted = utility::ConvertToLPWSTR(path);
+		D3DReadFileToBlob(converted, &pBlob);
+		gfx.GetDevice()->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader);
 	};
 
-	void Bind( Graphics& gfx )
+	void Bind(Graphics& gfx) const override
 	{
-		gfx.GetContext()->VSSetShader( pVertexShader.Get(), nullptr, 0u );
+		gfx.GetContext()->VSSetShader(pVertexShader.Get(), nullptr, 0u);
 	}
 
 	ComPtr<ID3DBlob> GetBlob() { return pBlob; }
-
 
 private:
 	ComPtr<ID3D11VertexShader> pVertexShader;

@@ -41,5 +41,5 @@
 #else
 #define INFOMAN(gfx)                                                           \
   HRESULT hr;                                                                  \
-  DxgiInfoManager& infoManager = GetInfoManager((gfx))
+  DxgiInfoManager& infoManager = gfx.GetInfoManager()
 #endif

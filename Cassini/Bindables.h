@@ -1,4 +1,5 @@
 #pragma once
+#include "ComputeShader.h"
 #include "ConstantBuffer.h"
 #include "IndexBuffer.h"
 #include "InputLayout.h"
@@ -6,6 +7,8 @@
 #include "Rasterizer.h"
 #include "Sampler.h"
 #include "Texture.h"
+#include "Texture.h"
+#include "Texture3D.h"
 #include "Topology.h"
 #include "VertexBuffer.h"
 #include "VertexShader.h"

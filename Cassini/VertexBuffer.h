@@ -1,11 +1,11 @@
 #pragma once
-#include "Graphics.h"
-#include "Vertex.h"
+#include "DataTypes.h"
+#include "GraphicsResource.h"
 
-class VertexBuffer
+class VertexBuffer : public GraphicsResource
 {
 public:
-	VertexBuffer(Graphics& gfx, vector<Vertex> vertices)
+	VertexBuffer(Graphics& gfx, const vector<Vertex>& vertices)
 	{
 		D3D11_BUFFER_DESC bd = {};
 		bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -19,7 +19,7 @@ public:
 		gfx.GetDevice()->CreateBuffer(&bd, &sd, &pVertexBuffer);
 	};
 
-	void Bind(Graphics& gfx)
+	void Bind(Graphics& gfx) const override
 	{
 		gfx.GetContext()->IASetVertexBuffers(
 			0u, 1u, pVertexBuffer.GetAddressOf(), &stride, &offset);

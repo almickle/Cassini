@@ -1,10 +1,10 @@
 #pragma once
-#include "Graphics.h"
+#include "GraphicsResource.h"
 
-class IndexBuffer
+class IndexBuffer : public GraphicsResource
 {
 public:
-	IndexBuffer(Graphics& gfx, vector<unsigned short>& indices)
+	IndexBuffer(Graphics& gfx, const vector<unsigned short>& indices)
 		: count((UINT)indices.size())
 	{
 		D3D11_BUFFER_DESC ibd = {};
@@ -19,7 +19,7 @@ public:
 		gfx.GetDevice()->CreateBuffer(&ibd, &isd, &pIndexBuffer);
 	}
 
-	void Bind(Graphics& gfx)
+	void Bind(Graphics& gfx) const override
 	{
 		gfx.GetContext()->IASetIndexBuffer(pIndexBuffer.Get(), DXGI_FORMAT_R16_UINT, 0u);
 	}

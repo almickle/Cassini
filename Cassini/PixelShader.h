@@ -1,21 +1,23 @@
 #pragma once
-#include "Graphics.h"
+#include "GraphicsResource.h"
+#include "Utility.h"
 
-class PixelShader
+class PixelShader : public GraphicsResource
 {
 public:
-	PixelShader( Graphics& gfx )
+	PixelShader(Graphics& gfx, string path)
 	{
-		D3DReadFileToBlob( L"PixelShader.cso", &pBlob );
-		gfx.GetDevice()->CreatePixelShader( pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader );
+		LPWSTR converted = utility::ConvertToLPWSTR(path);
+		D3DReadFileToBlob(converted, &pBlob);
+		gfx.GetDevice()->CreatePixelShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pPixelShader);
 	};
 
-	void Bind( Graphics& gfx )
+	void Bind(Graphics& gfx) const override
 	{
-		gfx.GetContext()->PSSetShader( pPixelShader.Get(), nullptr, 0u );
+		gfx.GetContext()->PSSetShader(pPixelShader.Get(), nullptr, 0u);
 	}
 
-	ComPtr<ID3DBlob> GetBlob() { return pBlob; };
+	ComPtr<ID3DBlob> GetBlob() { return pBlob; }
 
 
 private:

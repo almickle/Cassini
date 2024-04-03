@@ -1,16 +1,15 @@
 #pragma once
-#include "Graphics.h"
+#include "GraphicsResource.h"
 
-class Topology
+class Topology : public GraphicsResource
 {
 public:
-	Topology() { };
 	Topology(D3D11_PRIMITIVE_TOPOLOGY in_type)
 	{
 		type = in_type;
 	};
 
-	void Bind(Graphics& gfx)
+	void Bind(Graphics& gfx) const override
 	{
 		gfx.GetContext()->IASetPrimitiveTopology(type);
 	}
