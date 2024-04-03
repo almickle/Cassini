@@ -73,10 +73,6 @@ private:
 		GraphicsResource* resource = new PixelShader(gfx, path);
 		entities[entityID].staticResources.push_back(resource);
 	};
-	/*void CreateComputeShader(Graphics& gfx, string entityID, ComPtr<ID3DBlob> pBlob, string path) {
-		ComputeShader* resource = new ComputeShader(gfx, path);
-		entities[entityID].staticResources.push_back(resource);
-	};*/
 	void CreateRasterizer(Graphics& gfx, string entityID) {
 		GraphicsResource* resource = new Rasterizer(gfx);
 		entities[entityID].staticResources.push_back(resource);
@@ -85,7 +81,7 @@ private:
 public:
 	// Instance data
 	template<typename T>
-	void CreateConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT type, T cbData) {
+	void CreateConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT type, const T& cbData) {
 		InstanceResource* resource = new ConstantBuffer<T>(gfx, type, cbData);
 		entities[entityID].instances[instanceID].resources[resourceID] = resource;
 	};
@@ -96,7 +92,7 @@ public:
 	}
 
 	template<typename T>
-	void UpdateConstantData(Graphics& gfx, string entityID, string instanceID, string resourceID, T cbData) const {
+	void UpdateConstantData(Graphics& gfx, string entityID, string instanceID, string resourceID, const T& cbData) const {
 		InstanceResource* resource = entities.find(entityID)->second.instances.find(instanceID)->second.resources.find(resourceID)->second;
 		reinterpret_cast<ConstantBuffer<T>*>(resource)->Update(gfx, cbData);
 	}

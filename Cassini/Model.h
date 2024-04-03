@@ -5,7 +5,7 @@ class Model :
 	public Entity
 {
 public:
-	Model(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, "Models\\teapot.txt", "VertexShader.cso", "PixelShader.cso")
+	Model(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, "Models\\teapot.txt", "PhongVS.cso", "PhongPS.cso")
 	{
 		SetPosition({ 0.0f, -1.0f, 10.0f });
 	};

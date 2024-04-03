@@ -18,14 +18,14 @@ Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string 
 
 	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
 	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
-	//LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
+	LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
 	/*TestLightBuffer lightBuffer = {
 		{ 7.0f, 7.0f, 7.0f, 7.0f },
 		{ 7.0f, 7.0f, 7.0f, 7.0f },
 		{ 7.0f, 7.0f, 7.0f, 7.0f },
 		{ 7.0f, 7.0f, 7.0f, 7.0f }
 	};*/
-	//AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
+	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
 }
 
 void Entity::Draw(Graphics& gfx)
@@ -39,7 +39,7 @@ void Entity::Bind(Graphics& gfx, ResourceManager& manager) {
 }
 
 template<typename T>
-string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, T cbData) {
+string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData) {
 	string resourceID = GenerateUniqueID();
 	resourceIDs.push_back(resourceID);
 	manager.CreateConstantBuffer(gfx, entityID, instanceID, resourceID, type, cbData);
@@ -47,18 +47,18 @@ string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT t
 	return resourceID;
 }
 
-void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, XMMATRIX transform)
+void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& transform)
 {
 	string resourceID = GetResourceID(0);
 	ModelViewProjection buffer = { XMMatrixTranspose(transform), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
 	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);
 }
 
-void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, PhongLightingData lightData)
+void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const PhongLightingData& lightData)
 {
-	/*string resourceID = GetResourceID(1);
+	string resourceID = GetResourceID(1);
 	LightBuffer buffer = { lightData, modelColor };
-	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);*/
+	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);
 }
 
 void Entity::MoveX(float x) {

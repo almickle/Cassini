@@ -10,7 +10,7 @@ public:
 	Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	template<typename T>
-	string AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, T cbData);
+	string AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData);
 	void Draw(Graphics& gfx);
 	void Bind(Graphics& gfx, ResourceManager& manager);
 	string GetResourceID(int index) {
@@ -24,8 +24,8 @@ public:
 
 private:
 	void LoadMesh(string path);
-	void UpdateVSData(Graphics& gfx, ResourceManager& manager, XMMATRIX cbData);
-	void UpdatePSData(Graphics& gfx, ResourceManager& manager, PhongLightingData cbData);
+	void UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& cbData);
+	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const PhongLightingData& cbData);
 
 private:
 	string entityID;
@@ -35,7 +35,7 @@ private:
 	vector<unsigned short> indices;
 	LPWSTR VSPath;
 	LPWSTR PSPath;
-	XMFLOAT3 modelColor;
+	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.4f };
 
 public:
 	XMMATRIX GetTransformation() {
@@ -64,7 +64,7 @@ public:
 	}
 	void Update(Graphics& gfx, ResourceManager& manager) {
 		UpdateVSData(gfx, manager, GetTransformation());
-		//UpdatePSData(gfx, manager, gfx.GetLighting());
+		UpdatePSData(gfx, manager, gfx.GetLighting());
 	}
 	void OverrideTransform(XMMATRIX transform) {
 		transformation = transform;

@@ -5,8 +5,6 @@ PhongLightingData PointLight::GetLightData() {
 		GetPosition(),
 		color,
 		ambient,
-		intensity,
-		attConst
 	};
 }
 

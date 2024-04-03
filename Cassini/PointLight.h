@@ -10,10 +10,9 @@ public:
 	{
 		SetPosition({ 5.0f, 2.0f, 7.0f });
 		SetScale({ 0.5f, 0.5f, 0.5f });
-		//UpdateLight(gfx);
+		UpdateLight(gfx);
 	};
 	PhongLightingData GetLightData();
-private:
 	void UpdateLight(Graphics& gfx);
 private:
 	XMFLOAT3 ambient = { 0.5f, 0.5f, 0.5f };

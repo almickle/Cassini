@@ -3,8 +3,6 @@ cbuffer PointLight
     float3 position;
     float3 color;
     float3 ambient;
-    float intensity;
-    float att;
     float3 modelColor;
 };
 
@@ -23,5 +21,5 @@ float4 main( float3 worldPos : Position, float3 n : Normal, float2 tc : TextureC
 
     float3 lighting = ambient * 0.5f + diffuse + specular;
     
-    return float4( modelColor * lighting * intensity, 1.0f );
+    return float4( modelColor * lighting * 2.0f, 1.0f );
 }

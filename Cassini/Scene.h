@@ -16,15 +16,19 @@ class Scene
 public:
 	Scene(Graphics& gfx, ResourceManager& manager)
 	{
-		AddEntity(new Camera(gfx, manager));
-		AddEntity(new PointLight(gfx, manager));
-		AddEntity(new Model(gfx, manager));
+		camera = new Camera(gfx, manager);
+		light = new PointLight(gfx, manager);
+		model = new Model(gfx, manager);
+		AddEntity(camera);
+		AddEntity(light);
+		AddEntity(model);
 	};
 	void UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager)
 	{
 		auto start = steady_clock::now();
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 100.0f));
-		reinterpret_cast<Camera*>(entities[0])->UpdateCamera(gfx, frameCount);
+		camera->UpdateCamera(gfx, frameCount);
+		light->UpdateLight(gfx);
 		for (auto entity : entities)
 		{
 			entity->Bind(gfx, manager);
@@ -44,6 +48,9 @@ public:
 
 private:
 	vector<Entity*> entities;
+	Camera* camera;
+	Model* model;
+	PointLight* light;
 private:
 	float frameCount = 0;
 	float frameRate = 0;

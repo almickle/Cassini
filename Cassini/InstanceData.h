@@ -30,17 +30,15 @@ struct ModelViewProjection
 	XMMATRIX projection;
 };
 
-struct PhongLightingData {
-	XMFLOAT3 pos;
-	XMFLOAT3 color;
-	XMFLOAT3 ambient;
-	float intensity;
-	float att;
+struct alignas(16) PhongLightingData {
+	alignas(16) XMFLOAT3 pos;
+	alignas(16) XMFLOAT3 color;
+	alignas(16) XMFLOAT3 ambient;
 };
 
 struct LightBuffer {
-	PhongLightingData lighting;
-	XMFLOAT3 modelColor;
+	alignas(16) PhongLightingData lighting;
+	alignas(16) XMFLOAT3 modelColor;
 };
 
 struct TestLightBuffer {
