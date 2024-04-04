@@ -27,7 +27,9 @@ public:
 	{
 		auto start = steady_clock::now();
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 100.0f));
-		camera->UpdateCamera(gfx, frameCount);
+		camera->SpawnControlWindow();
+		light->SpawnControlWindow();
+		camera->UpdateCamera(gfx, 10.0f);
 		light->UpdateLight(gfx);
 		for (auto entity : entities)
 		{

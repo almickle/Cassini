@@ -150,13 +150,13 @@
     <ClCompile Include="InstanceData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Graphics.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="DxgiInfoManager.h">
       <Filter>dxgi</Filter>
@@ -236,6 +236,9 @@
     <ClInclude Include="GraphicsResource.h">
       <Filter>Header Files\Bindables</Filter>
     </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Drawables</Filter>
     </ClInclude>
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="PointLight.h">
       <Filter>Header Files\Drawables</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

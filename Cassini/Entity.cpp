@@ -19,12 +19,21 @@ Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string 
 	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
 	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
 	LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
-	/*TestLightBuffer lightBuffer = {
-		{ 7.0f, 7.0f, 7.0f, 7.0f },
-		{ 7.0f, 7.0f, 7.0f, 7.0f },
-		{ 7.0f, 7.0f, 7.0f, 7.0f },
-		{ 7.0f, 7.0f, 7.0f, 7.0f }
-	};*/
+	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
+}
+
+Entity::Entity(Graphics& gfx, ResourceManager& manager, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology)
+{
+	entityID = GenerateUniqueID();
+	instanceID = GenerateUniqueID();
+	manager.RegisterEntity(entityID);
+	manager.RegisterInstance(entityID, instanceID);
+	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, topology);
+	manager.BindStaticResources(gfx, entityID);
+
+	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
+	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
+	LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
 	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
 }
 

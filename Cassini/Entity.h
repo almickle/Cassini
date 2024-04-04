@@ -8,6 +8,7 @@ class Entity
 {
 public:
 	Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Entity(Graphics& gfx, ResourceManager& manager, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	template<typename T>
 	string AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData);
@@ -35,7 +36,7 @@ private:
 	vector<unsigned short> indices;
 	LPWSTR VSPath;
 	LPWSTR PSPath;
-	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.4f };
+	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.35f };
 
 public:
 	XMMATRIX GetTransformation() {
