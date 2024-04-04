@@ -6,35 +6,36 @@
 
 using namespace utility;
 
-Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology)
+Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath)
 {
 	LoadMesh(meshPath);
 	entityID = GenerateUniqueID();
 	instanceID = GenerateUniqueID();
 	manager.RegisterEntity(entityID);
 	manager.RegisterInstance(entityID, instanceID);
-	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, topology);
+	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	manager.BindStaticResources(gfx, entityID);
 
 	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
 	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
-	LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
+
+	LightBuffer lightBuffer = { gfx.GetLighting(), GetModelColor() };
 	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
 }
 
-Entity::Entity(Graphics& gfx, ResourceManager& manager, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology)
+Entity::Entity(Graphics& gfx, ResourceManager& manager, const XMVECTOR& color, string meshPath, string VSPath, string PSPath)
 {
+	LoadMesh(meshPath);
 	entityID = GenerateUniqueID();
 	instanceID = GenerateUniqueID();
 	manager.RegisterEntity(entityID);
 	manager.RegisterInstance(entityID, instanceID);
-	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, topology);
+	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	manager.BindStaticResources(gfx, entityID);
 
 	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
 	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
-	LightBuffer lightBuffer = { gfx.GetLighting(), modelColor };
-	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
+	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, color);
 }
 
 void Entity::Draw(Graphics& gfx)
@@ -44,7 +45,7 @@ void Entity::Draw(Graphics& gfx)
 
 void Entity::Bind(Graphics& gfx, ResourceManager& manager) {
 	manager.BindStaticResources(gfx, entityID);
-	manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(0));
+	manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(0), 0u);
 }
 
 template<typename T>
@@ -52,9 +53,14 @@ string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT t
 	string resourceID = GenerateUniqueID();
 	resourceIDs.push_back(resourceID);
 	manager.CreateConstantBuffer(gfx, entityID, instanceID, resourceID, type, cbData);
-	manager.BindConstantBuffer(gfx, entityID, instanceID, resourceID);
+	manager.BindConstantBuffer(gfx, entityID, instanceID, resourceID, 0u);
 	return resourceID;
 }
+
+//void Entity::Update(Graphics& gfx, ResourceManager& manager) {
+//	UpdateVSData(gfx, manager, GetTransformation());
+//	UpdatePSData(gfx, manager, GetPSData());
+//}
 
 void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& transform)
 {
@@ -63,27 +69,11 @@ void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRI
 	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);
 }
 
-void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const PhongLightingData& lightData)
+template<typename PSData>
+void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData)
 {
 	string resourceID = GetResourceID(1);
-	LightBuffer buffer = { lightData, modelColor };
-	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);
-}
-
-void Entity::MoveX(float x) {
-	orientation.x += x;
-}
-
-void Entity::MoveY(float y) {
-	orientation.y += y;
-}
-
-void Entity::MoveZ(float z) {
-	orientation.z += z;
-}
-
-void Entity::Rotate(float x, float y, float z) {
-
+	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, cbData);
 }
 
 void Entity::LoadMesh(string path)

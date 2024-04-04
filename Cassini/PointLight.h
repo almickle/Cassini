@@ -19,7 +19,7 @@ public:
 		ImGui::Begin("Light");
 		ImGui::SliderFloat("Orbit radius", &radius, 1.0f, 30.0f);
 		ImGui::SliderFloat("Orbit angle", &theta, 0.0f, 360.0f);
-		ImGui::SliderFloat("View height", &height, -10.0f, 10.0f);
+		ImGui::SliderFloat("Height", &height, -10.0f, 10.0f);
 		ImGui::End();
 	}
 private:

@@ -3,11 +3,12 @@
 
 class Grid : public Entity
 {
-	//Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 public:
-	Grid(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, "VertexShader.cso", "PixelShader.cso") {
-
+	Grid(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, "Models\\plane.txt", "PhongVS.cso", "GridPS.cso")
+	{
+		LightBuffer buffer = { gfx.GetLighting(), GetModelColor() };
+		UpdatePSData(gfx, manager, buffer);
+		SetScale({ 100.0f, 1.0f, 100.0f });
 	}
 };
 

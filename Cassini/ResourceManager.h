@@ -25,7 +25,8 @@ public:
 		entities[entityID].instances[instanceID] = {};
 	}
 
-	void CreateStaticResources(Graphics& gfx, string entityID, const vector<Vertex>& vertices, const vector<unsigned short>& indices, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology) {
+	template<typename V>
+	void CreateStaticResources(Graphics& gfx, string entityID, const vector<V>& vertices, const vector<unsigned short>& indices, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology) {
 		CreateVertexBuffer(gfx, entityID, vertices);
 		CreateIndexBuffer(gfx, entityID, indices);
 		VertexShader* ref = CreateVertexShader(gfx, entityID, VSPath);
@@ -48,8 +49,9 @@ public:
 
 private:
 	// Static resource creation
-	void CreateVertexBuffer(Graphics& gfx, string entityID, const vector<Vertex>& vertices) {
-		GraphicsResource* resource = new VertexBuffer(gfx, vertices);
+	template<typename V>
+	void CreateVertexBuffer(Graphics& gfx, string entityID, const vector<V>& vertices) {
+		GraphicsResource* resource = new VertexBuffer<V>(gfx, vertices);
 		entities[entityID].staticResources.push_back(resource);
 	};
 	void CreateIndexBuffer(Graphics& gfx, string entityID, const vector<unsigned short>& indices) {
@@ -86,9 +88,9 @@ public:
 		entities[entityID].instances[instanceID].resources[resourceID] = resource;
 	};
 
-	void BindConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID) const {
+	void BindConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT slot) const {
 		InstanceResource* resource = entities.find(entityID)->second.instances.find(instanceID)->second.resources.find(resourceID)->second;
-		resource->Bind(gfx);
+		resource->Bind(gfx, slot);
 	}
 
 	template<typename T>

@@ -138,7 +138,6 @@ Graphics::ClearBuffer()
 {
 	// Bind render target
 	pContext->OMSetRenderTargets(1, pSceneTarget.GetAddressOf(), pDSV.Get());
-	const float clearColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	pContext->ClearRenderTargetView(pSceneTarget.Get(), clearColor);
 	pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }

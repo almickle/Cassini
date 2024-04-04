@@ -22,7 +22,7 @@ public:
 		GFX_THROW_INFO(gfx.GetDevice()->CreateBuffer(&cbDesc, &sd, pConstBuffer.GetAddressOf()));
 	}
 
-	void Bind(Graphics& gfx, UINT slot = 0u) override
+	void Bind(Graphics& gfx, UINT slot) override
 	{
 		INFOMAN(gfx);
 		switch (shaderType) {

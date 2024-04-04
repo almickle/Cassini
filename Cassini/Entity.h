@@ -7,27 +7,24 @@
 class Entity
 {
 public:
-	Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	Entity(Graphics& gfx, ResourceManager& manager, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath);
+	Entity(Graphics& gfx, ResourceManager& manager, const XMVECTOR& color, string meshPath, string VSPath, string PSPath);
+	virtual ~Entity() {};
 
+	void Bind(Graphics& gfx, ResourceManager& manager);
+	virtual void Update(Graphics& gfx, ResourceManager& manager) {
+		UpdateVSData(gfx, manager, GetTransformation());
+		LightBuffer buffer = { gfx.GetLighting(), GetModelColor() };
+		UpdatePSData(gfx, manager, buffer);
+	};
+	void Draw(Graphics& gfx);
 	template<typename T>
 	string AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData);
-	void Draw(Graphics& gfx);
-	void Bind(Graphics& gfx, ResourceManager& manager);
-	string GetResourceID(int index) {
-		return resourceIDs[index];
-	}
-public:
-	void MoveX(float x);
-	void MoveY(float y);
-	void MoveZ(float z);
-	void Rotate(float x, float y, float z);
-
-private:
+protected:
 	void LoadMesh(string path);
 	void UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& cbData);
-	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const PhongLightingData& cbData);
-
+	template<typename PSData>
+	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData);
 private:
 	string entityID;
 	string instanceID;
@@ -37,22 +34,26 @@ private:
 	LPWSTR VSPath;
 	LPWSTR PSPath;
 	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.35f };
-
 public:
 	XMMATRIX GetTransformation() {
 		return transformation;
 	}
-	void CalculateTransformation() {
-		transformation = XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
-			XMMatrixScaling(scale.x, scale.y, scale.z) *
-			XMMatrixTranslation(position.x, position.y, position.z);
+	XMFLOAT3 GetModelColor() {
+		return modelColor;
 	}
 	XMFLOAT3 GetPosition() {
 		return position;
 	}
+	string GetResourceID(int index) {
+		return resourceIDs[index];
+	}
+public:
 	void SetPosition(XMFLOAT3 in_position) {
 		position = in_position;
 		CalculateTransformation();
+	}
+	void SetModelColor(XMFLOAT3 color) {
+		modelColor = color;
 	}
 	void SetOrientation(XMFLOAT3 in_orientation) {
 		orientation = in_orientation;
@@ -63,9 +64,11 @@ public:
 		scale = in_scale;
 		CalculateTransformation();
 	}
-	void Update(Graphics& gfx, ResourceManager& manager) {
-		UpdateVSData(gfx, manager, GetTransformation());
-		UpdatePSData(gfx, manager, gfx.GetLighting());
+public:
+	void CalculateTransformation() {
+		transformation = XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
+			XMMatrixScaling(scale.x, scale.y, scale.z) *
+			XMMatrixTranslation(position.x, position.y, position.z);
 	}
 	void OverrideTransform(XMMATRIX transform) {
 		transformation = transform;

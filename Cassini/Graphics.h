@@ -81,7 +81,7 @@ private:
 		{ 1.0f, 1.0f, 1.0f },
 		{ 0.3f, 0.3f, 0.3f },
 	};
-
+	const float clearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	int frameCount = 0;
 
 private:

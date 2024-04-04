@@ -1,10 +1,8 @@
 #pragma once
-#include "Camera.h"
+#include "Entities.h"
 #include "Entity.h"
 #include "GDIPlusManager.h"
 #include "Graphics.h"
-#include "Model.h"
-#include "PointLight.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -19,9 +17,13 @@ public:
 		camera = new Camera(gfx, manager);
 		light = new PointLight(gfx, manager);
 		model = new Model(gfx, manager);
+		grid = new Grid(gfx, manager);
+		//sphere = new Sphere(gfx, manager, { 0.0f, 1.0f, 0.0f });
 		AddEntity(camera);
 		AddEntity(light);
 		AddEntity(model);
+		AddEntity(grid);
+		//AddEntity(sphere);
 	};
 	void UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager)
 	{
@@ -29,7 +31,8 @@ public:
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 100.0f));
 		camera->SpawnControlWindow();
 		light->SpawnControlWindow();
-		camera->UpdateCamera(gfx, 10.0f);
+		camera->SetTarget(model->GetPosition());
+		camera->UpdateCamera(gfx);
 		light->UpdateLight(gfx);
 		for (auto entity : entities)
 		{
@@ -53,6 +56,8 @@ private:
 	Camera* camera;
 	Model* model;
 	PointLight* light;
+	Grid* grid;
+	Sphere* sphere;
 private:
 	float frameCount = 0;
 	float frameRate = 0;
