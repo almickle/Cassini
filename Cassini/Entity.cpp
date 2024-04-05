@@ -45,7 +45,9 @@ void Entity::Draw(Graphics& gfx)
 
 void Entity::Bind(Graphics& gfx, ResourceManager& manager) {
 	manager.BindStaticResources(gfx, entityID);
-	manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(0), 0u);
+	manager.BindInstanceResources(gfx, entityID, instanceID);
+	//manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(0), 0u);
+	//manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(1), 0u);
 }
 
 template<typename T>
@@ -53,14 +55,8 @@ string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT t
 	string resourceID = GenerateUniqueID();
 	resourceIDs.push_back(resourceID);
 	manager.CreateConstantBuffer(gfx, entityID, instanceID, resourceID, type, cbData);
-	manager.BindConstantBuffer(gfx, entityID, instanceID, resourceID, 0u);
 	return resourceID;
 }
-
-//void Entity::Update(Graphics& gfx, ResourceManager& manager) {
-//	UpdateVSData(gfx, manager, GetTransformation());
-//	UpdatePSData(gfx, manager, GetPSData());
-//}
 
 void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& transform)
 {
@@ -71,6 +67,12 @@ void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRI
 
 template<typename PSData>
 void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData)
+{
+	string resourceID = GetResourceID(1);
+	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, cbData);
+}
+
+void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& cbData)
 {
 	string resourceID = GetResourceID(1);
 	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, cbData);

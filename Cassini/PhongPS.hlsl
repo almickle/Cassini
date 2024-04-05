@@ -24,8 +24,8 @@ float4 main( float3 worldPos : Position, float3 n : Normal, float2 tc : TextureC
     
     //float3 lighting = ambient * 0.5f + diffuse * intensity + specular * intensity;
     
-    //float3 lighting = ambient * 0.5f + specular * intensity;
-    float3 lighting = diffuse * intensity;
+    float3 lighting = ambient * 0.5f + diffuse * intensity;
+    //float3 lighting = diffuse * intensity;
     
     return float4( modelColor * lighting, 1.0f );
 }

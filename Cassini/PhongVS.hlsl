@@ -16,10 +16,10 @@ struct VSOut
 VSOut main( float3 pos : Position, float3 n : Normal, float2 tc : TextureCoordinate )
 {
     VSOut vso = { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f } };
-    vso.worldPos = mul( float4( pos, 1.0f ), modelMatrix );
-    vso.worldPos = mul( vso.worldPos, viewMatrix );
-    vso.normal = mul( n, modelMatrix );
-    vso.normal = mul( vso.normal, viewMatrix );
+    vso.worldPos = mul( float4(pos, 1.0f ), modelMatrix);
+    vso.worldPos = mul( float4( vso.worldPos, 1.0f), viewMatrix );
+    vso.normal = mul( n, (float3x3) modelMatrix );
+    vso.normal = mul( vso.normal, (float3x3) viewMatrix );
     vso.pos = mul( float4( pos, 1.0f ), modelMatrix );
     vso.pos = mul( vso.pos, viewMatrix );
     vso.pos = mul( vso.pos, projectionMatrix );

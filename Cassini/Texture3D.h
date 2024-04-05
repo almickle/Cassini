@@ -5,7 +5,7 @@
 class Texture3D : public GraphicsResource
 {
 public:
-	Texture3D(Graphics& gfx, UINT resolution[3]) {
+	Texture3D(Graphics& gfx, const UINT resolution[3]) {
 		D3D11_TEXTURE3D_DESC textureDesc;
 		ID3D11Texture3D* pTexture;
 		// Initialize the  texture description.
@@ -25,16 +25,16 @@ public:
 		// Create the texture
 		GFX_THROW_INFO(gfx.GetDevice()->CreateTexture3D(&textureDesc, NULL, &pTexture));
 
-		//D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 
-		////// Setup the description of the shader resource view.
-		//shaderResourceViewDesc.Format = textureDesc.Format;
-		//shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
-		//shaderResourceViewDesc.Texture3D.MostDetailedMip = 0u;
-		//shaderResourceViewDesc.Texture3D.MipLevels = textureDesc.MipLevels;
+		// Setup the description of the shader resource view.
+		shaderResourceViewDesc.Format = textureDesc.Format;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE3D;
+		shaderResourceViewDesc.Texture3D.MostDetailedMip = 0u;
+		shaderResourceViewDesc.Texture3D.MipLevels = textureDesc.MipLevels;
 
-		//// Create the shader resource view.
-		//gfx.GetDevice()->CreateShaderResourceView(pTexture, &shaderResourceViewDesc, pSRV.GetAddressOf());
+		// Create the shader resource view.
+		GFX_THROW_INFO(gfx.GetDevice()->CreateShaderResourceView(pTexture, &shaderResourceViewDesc, pSRV.GetAddressOf()));
 
 		D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc;
 		ZeroMemory(&unorderedAccessViewDesc, sizeof(unorderedAccessViewDesc));
@@ -49,12 +49,19 @@ public:
 
 	void Bind(Graphics& gfx) const override
 	{
-		//gfx.GetContext()->VSSetShaderResources(0u, 1u, pSRV.GetAddressOf());
+		gfx.GetContext()->VSSetShaderResources(1u, 1u, pNullSRV.GetAddressOf());
 		gfx.GetContext()->CSSetUnorderedAccessViews(0u, 1u, pUAV.GetAddressOf(), nullptr);
-		//gfx.GetContext()->CSSetShaderResources(1u, 1u, pSRV.GetAddressOf());
+	}
+	void UnBind(Graphics& gfx) {
+		gfx.GetContext()->CSSetUnorderedAccessViews(0u, 1u, pNullUAV.GetAddressOf(), nullptr);
+	}
+	void SetAsVSResource(Graphics& gfx) const {
+		gfx.GetContext()->VSSetShaderResources(1u, 1u, pSRV.GetAddressOf());
 	}
 
 private:
 	ComPtr<ID3D11ShaderResourceView> pSRV;
 	ComPtr<ID3D11UnorderedAccessView> pUAV;
+	ComPtr<ID3D11ShaderResourceView> pNullSRV;
+	ComPtr<ID3D11UnorderedAccessView> pNullUAV;
 };

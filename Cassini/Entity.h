@@ -12,7 +12,9 @@ public:
 	virtual ~Entity() {};
 
 	void Bind(Graphics& gfx, ResourceManager& manager);
-	virtual void Update(Graphics& gfx, ResourceManager& manager) {
+	virtual void UpdateModel(float dt) {};
+	virtual void Update(Graphics& gfx, ResourceManager& manager, float dt) {
+		UpdateModel(dt);
 		UpdateVSData(gfx, manager, GetTransformation());
 		LightBuffer buffer = { gfx.GetLighting(), GetModelColor() };
 		UpdatePSData(gfx, manager, buffer);
@@ -25,6 +27,7 @@ protected:
 	void UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& cbData);
 	template<typename PSData>
 	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData);
+	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& cbData);
 private:
 	string entityID;
 	string instanceID;

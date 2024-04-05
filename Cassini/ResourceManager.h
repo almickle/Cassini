@@ -33,21 +33,29 @@ public:
 		CreatePixelShader(gfx, entityID, PSPath);
 		CreatePrimitiveTopology(gfx, entityID, topology);
 		CreateInputLayout(gfx, entityID, ref->GetBlob());
+		CreateSampler(gfx, entityID);
 	}
 
 	void BindStaticResources(Graphics& gfx, string entityID) {
 		for (int i = 0; i < entities[entityID].staticResources.size(); i++)
 			entities[entityID].staticResources[i]->Bind(gfx);
 	}
-
 	void BindInstanceResources(Graphics& gfx, string entityID, string instanceID) {
 		for (auto& resource : entities[entityID].instances[instanceID].resources)
 		{
 			resource.second->Bind(gfx);
 		}
 	}
+	void Dispatch(Graphics& gfx, string entityID, UINT threadCount) const {
+		GraphicsResource* resource = entities.find(entityID)->second.staticResources[0];
+		reinterpret_cast<ComputeShader*>(resource)->Execute(gfx, threadCount);
+	}
+	GraphicsResource* GetStaticResourceByIndex(string entityID, UINT index) {
+		GraphicsResource* resource = entities.find(entityID)->second.staticResources[index];
+		return resource;
+	}
 
-private:
+public:
 	// Static resource creation
 	template<typename V>
 	void CreateVertexBuffer(Graphics& gfx, string entityID, const vector<V>& vertices) {
@@ -79,6 +87,18 @@ private:
 		GraphicsResource* resource = new Rasterizer(gfx);
 		entities[entityID].staticResources.push_back(resource);
 	};
+	void CreateComputeShader(Graphics& gfx, string entityID, string path) {
+		GraphicsResource* resource = new ComputeShader(gfx, path);
+		entities[entityID].staticResources.push_back(resource);
+	}
+	void CreateTexture3D(Graphics& gfx, string entityID, const UINT res[3]) {
+		GraphicsResource* resource = new Texture3D(gfx, res);
+		entities[entityID].staticResources.push_back(resource);
+	}
+	void CreateSampler(Graphics& gfx, string entityID) {
+		GraphicsResource* resource = new Sampler(gfx);
+		entities[entityID].staticResources.push_back(resource);
+	}
 
 public:
 	// Instance data

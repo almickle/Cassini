@@ -1,5 +1,6 @@
 #pragma once
 #include "DirectXMath.h"
+#include <vector>
 
 using namespace DirectX;
 
@@ -41,16 +42,12 @@ struct LightBuffer {
 	alignas(16) XMFLOAT3 modelColor;
 };
 
-struct TestLightBuffer {
-	XMVECTOR a;
-	XMVECTOR b;
-	XMVECTOR c;
-	XMVECTOR d;
+struct alignas(16) Particle {
+	XMFLOAT3 pos;
+	float charge;
 };
 
-struct Compute {
-	float a;
-	float b;
-	float c;
-	float padding;
+struct alignas(16) FieldBuffer {
+	Particle particles[6];
+	unsigned int size;
 };
