@@ -6,6 +6,7 @@
 #include "PixelShader.h"
 #include "Rasterizer.h"
 #include "Sampler.h"
+#include "StructuredBuffer.h"
 #include "Texture.h"
 #include "Texture.h"
 #include "Texture3D.h"

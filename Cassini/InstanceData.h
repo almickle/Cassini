@@ -42,12 +42,7 @@ struct LightBuffer {
 	alignas(16) XMFLOAT3 modelColor;
 };
 
-struct alignas(16) Particle {
-	XMFLOAT3 pos;
-	float charge;
-};
-
-struct alignas(16) FieldBuffer {
-	Particle particles[6];
-	unsigned int size;
+struct ParticleData {
+	XMFLOAT3 x;
+	XMFLOAT3 v;
 };

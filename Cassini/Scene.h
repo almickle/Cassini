@@ -22,17 +22,15 @@ public:
 		float upper_bound = 70.0f; // Upper bound of the range
 		mt19937 rng{ random_device{}() };
 		uniform_real_distribution<float> distribution(lower_bound, upper_bound);
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < 100; i++) {
 			XMFLOAT3 color = i % 2 == 0 ? XMFLOAT3{ 0.1f, 0.1f, 1.0f } : XMFLOAT3{ 1.0f, 0.1f, 0.1f };
 			float charge = i % 2 == 0 ? 1.0f : -1.0f;
 			float radius = 1.0f;
-			Atom* ptcl = new Atom(gfx, manager, color, radius, charge, { distribution(rng), distribution(rng), distribution(rng) });
-			atoms.push_back(ptcl);
+			Particle* ptcl = new Particle(gfx, manager, color, radius, charge, { distribution(rng), distribution(rng), distribution(rng) });
+			particles.push_back(ptcl);
 			entities.push_back(ptcl);
-			XMFLOAT3 pos = ptcl->GetPosition();
-			XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) + XMLoadFloat3(&pos)) / (i + 1));
 		}
-		field = new ElectricField(gfx, manager, atoms);
+		field = new ElectricField(gfx, manager, particles);
 		camera = new Camera(gfx, manager);
 		light = new PointLight(gfx, manager);
 		grid = new Grid(gfx, manager);
@@ -44,13 +42,10 @@ public:
 	{
 		auto start = steady_clock::now();
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 1000.0f));
+		//field->SpawnControlWindow();
 		camera->SpawnControlWindow();
 		light->SpawnControlWindow();
-		for (auto& atom : atoms) {
-			XMFLOAT3 pos = atom->GetPosition();
-			XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) + XMLoadFloat3(&pos)));
-		}
-		XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) / atoms.size()));
+		FindCentroid();
 		camera->SetTarget(centroid);
 		camera->UpdateCamera(gfx);
 		light->UpdateLight(gfx);
@@ -79,6 +74,15 @@ public:
 		entities.push_back(entity);
 	};
 
+	void FindCentroid() {
+		centroid = { 0.0f, 0.0f, 0.0f };
+		for (auto& atom : particles) {
+			XMFLOAT3 pos = atom->GetPosition();
+			XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) + XMLoadFloat3(&pos)));
+		}
+		XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) / particles.size()));
+	}
+
 private:
 	vector<Entity*> entities;
 	Camera* camera;
@@ -86,7 +90,7 @@ private:
 	Grid* grid;
 private:
 	ElectricField* field;
-	vector<Atom*> atoms;
+	vector<Particle*> particles;
 private:
 	int frameCount = 0;
 	float frameRate = 0;

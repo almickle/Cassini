@@ -19,9 +19,9 @@ public:
 		GFX_THROW_INFO_ONLY(gfx.GetContext()->CSSetShader(pComputeShader.Get(), nullptr, 0u));
 	}
 
-	void Execute(Graphics& gfx, UINT threadCount) {
+	void Execute(Graphics& gfx, UINT threadGroupsX, UINT threadGroupsY, UINT threadGroupsZ) {
 		INFOMAN(gfx);
-		GFX_THROW_INFO_ONLY(gfx.GetContext()->Dispatch(threadCount, threadCount, threadCount));
+		GFX_THROW_INFO_ONLY(gfx.GetContext()->Dispatch(threadGroupsX, threadGroupsY, threadGroupsZ));
 	}
 
 	ComPtr<ID3DBlob> GetBlob() { return pBlob; }

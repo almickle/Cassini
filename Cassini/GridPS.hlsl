@@ -7,8 +7,8 @@ float4 main( float3 worldPos : Position, float3 n : Normal, float2 tc : TextureC
     float majorInterval = 10.0f;
     float minorInterval = 1.0f;
     
-    float4 major = ( defaultColor, 0.9f );
-    float4 minor = ( defaultColor, 0.7f );
+    float4 major = float4( defaultColor, 0.9f );
+    float4 minor = float4( defaultColor, 0.7f );
     float4 clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
     
     float4 x = { 1.0f, 0.1f, 0.1f, 0.9f };

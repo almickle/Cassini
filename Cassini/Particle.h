@@ -1,11 +1,11 @@
 #pragma once
 #include "Sphere.h"
 
-class Atom :
+class Particle :
 	public Sphere
 {
 public:
-	Atom(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& color, const float& in_radius, const float& in_charge, XMFLOAT3 in_pos)
+	Particle(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& color, const float& in_radius, const float& in_charge, XMFLOAT3 in_pos)
 		: Sphere(gfx, manager, color, in_radius)
 		, charge(in_charge)
 	{

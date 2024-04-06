@@ -156,13 +156,16 @@
     <ClCompile Include="Group.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Atom.cpp">
+    <ClCompile Include="Particle.cpp">
       <Filter>Source Files\Drawables</Filter>
     </ClCompile>
     <ClCompile Include="Grid.cpp">
       <Filter>Source Files\Drawables</Filter>
     </ClCompile>
     <ClCompile Include="ElectricField.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StructuredBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -269,7 +272,7 @@
     <ClInclude Include="Grid.h">
       <Filter>Header Files\Drawables</Filter>
     </ClInclude>
-    <ClInclude Include="Atom.h">
+    <ClInclude Include="Particle.h">
       <Filter>Header Files\Drawables</Filter>
     </ClInclude>
     <ClInclude Include="InstanceData.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="ElectricField.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StructuredBuffer.h">
+      <Filter>Header Files\Bindables</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -329,6 +335,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="FieldVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="ParticleCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

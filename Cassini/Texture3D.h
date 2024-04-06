@@ -7,7 +7,6 @@ class Texture3D : public GraphicsResource
 public:
 	Texture3D(Graphics& gfx, const UINT resolution[3]) {
 		D3D11_TEXTURE3D_DESC textureDesc;
-		ID3D11Texture3D* pTexture;
 		// Initialize the  texture description.
 		ZeroMemory(&textureDesc, sizeof(textureDesc));
 		// Setup the texture description.
@@ -34,7 +33,7 @@ public:
 		shaderResourceViewDesc.Texture3D.MipLevels = textureDesc.MipLevels;
 
 		// Create the shader resource view.
-		GFX_THROW_INFO(gfx.GetDevice()->CreateShaderResourceView(pTexture, &shaderResourceViewDesc, pSRV.GetAddressOf()));
+		GFX_THROW_INFO(gfx.GetDevice()->CreateShaderResourceView(pTexture.Get(), &shaderResourceViewDesc, pSRV.GetAddressOf()));
 
 		D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc;
 		ZeroMemory(&unorderedAccessViewDesc, sizeof(unorderedAccessViewDesc));
@@ -44,7 +43,7 @@ public:
 		unorderedAccessViewDesc.Texture3D.FirstWSlice = 0; // Specify the first depth slice to access
 		unorderedAccessViewDesc.Texture3D.WSize = -1; // Use -1 to indicate the entire depth of the texture
 
-		GFX_THROW_INFO(gfx.GetDevice()->CreateUnorderedAccessView(pTexture, &unorderedAccessViewDesc, pUAV.GetAddressOf()));
+		GFX_THROW_INFO(gfx.GetDevice()->CreateUnorderedAccessView(pTexture.Get(), &unorderedAccessViewDesc, pUAV.GetAddressOf()));
 	}
 
 	void Bind(Graphics& gfx) const override
@@ -59,9 +58,18 @@ public:
 		gfx.GetContext()->VSSetShaderResources(1u, 1u, pSRV.GetAddressOf());
 	}
 
+	ComPtr<ID3D11ShaderResourceView> GetShaderResourceView() {
+		return pSRV;
+	}
+
+	ComPtr< ID3D11Texture3D> GetTexture() {
+		return pTexture;
+	}
+
 private:
 	ComPtr<ID3D11ShaderResourceView> pSRV;
 	ComPtr<ID3D11UnorderedAccessView> pUAV;
 	ComPtr<ID3D11ShaderResourceView> pNullSRV;
 	ComPtr<ID3D11UnorderedAccessView> pNullUAV;
+	ComPtr< ID3D11Texture3D> pTexture;
 };
