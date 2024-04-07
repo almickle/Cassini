@@ -10,8 +10,18 @@ public:
 		radius(in_radius)
 	{
 		SetModelColor(color);
-		SetPosition({ 5.0f, 5.0f, 5.0f });
 		SetScale({ in_radius, in_radius, in_radius });
+	}
+
+	Sphere(Graphics& gfx, ResourceManager& manager, const float& in_radius) :
+		Entity(gfx, manager, "Models\\icosphere.txt", "PhongVS.cso", "PhongPS.cso"),
+		radius(in_radius)
+	{
+		SetScale({ in_radius, in_radius, in_radius });
+	}
+
+	float GetRadius() {
+		return radius;
 	}
 
 private:

@@ -24,9 +24,9 @@ public:
 	void SpawnControlWindow()
 	{
 		ImGui::Begin("Camera");
-		ImGui::SliderFloat("Orbit radius", &radius, 1.0f, 60.0f);
-		ImGui::SliderFloat("Orbit angle", &theta, 0.0f, 720.0f);
-		ImGui::SliderFloat("View height", &height, -100.0f, 100.0f);
+		ImGui::SliderFloat("Orbit radius", &radius, 1.0f, 500.0f);
+		ImGui::SliderFloat("Orbit angle", &theta, 0.0f, 1440.0f);
+		ImGui::SliderFloat("View height", &height, -500.0f, 500.0f);
 		ImGui::End();
 	}
 	void SetTarget(XMFLOAT3 in_target) {
@@ -37,9 +37,9 @@ private:
 private:
 	string meshPath = "cube.txt";
 private:
-	float radius = 26.0f;
-	float theta = 300.0f;
-	float height = 17.0f;
+	float radius = 20.0f;
+	float theta = 270.0f;
+	float height = 25.0f;
 	const XMFLOAT3 upDirection = { 0.0f, 1.0f, 0.0f };
-	XMFLOAT3 target = { 0.0f, -1.0f, 10.0f };
+	XMFLOAT3 target = { 0.0f, 0.0f, 0.0f };
 };

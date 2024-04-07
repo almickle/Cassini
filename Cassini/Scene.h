@@ -18,18 +18,23 @@ class Scene
 public:
 	Scene(Graphics& gfx, ResourceManager& manager)
 	{
-		float lower_bound = 30.0f;   // Lower bound of the range
-		float upper_bound = 70.0f; // Upper bound of the range
+		float lower_bound = -90.0f;   // Lower bound of the range
+		float upper_bound = 90.0f; // Upper bound of the range
 		mt19937 rng{ random_device{}() };
 		uniform_real_distribution<float> distribution(lower_bound, upper_bound);
-		for (int i = 0; i < 100; i++) {
-			XMFLOAT3 color = i % 2 == 0 ? XMFLOAT3{ 0.1f, 0.1f, 1.0f } : XMFLOAT3{ 1.0f, 0.1f, 0.1f };
-			float charge = i % 2 == 0 ? 1.0f : -1.0f;
-			float radius = 1.0f;
-			Particle* ptcl = new Particle(gfx, manager, color, radius, charge, { distribution(rng), distribution(rng), distribution(rng) });
-			particles.push_back(ptcl);
-			entities.push_back(ptcl);
-		}
+		//for (int i = 0; i < 200; i++) {
+		//	float charge = i % 2 == 0 ? 1.0f : -1.0f;
+		//	float radius = 1.0f;
+		//	Particle* ptcl = new Particle(gfx, manager, radius, charge, { distribution(rng), distribution(rng) + 100, distribution(rng) });
+		//	particles.push_back(ptcl);
+		//	entities.push_back(ptcl);
+		//}
+		Particle* ptcla = new Particle(gfx, manager, 1.0f, 1.0f, { 20.0f, 10.0f, 0.0f }, { -1000.0f, 0.0f, 0.0f });
+		Particle* ptclb = new Particle(gfx, manager, 1.0f, -1.0f, { -20.0f, 10.0f, 0.0f }, { 1000.0f, 0.0f, 0.0f });
+		particles.push_back(ptcla);
+		particles.push_back(ptclb);
+		entities.push_back(ptcla);
+		entities.push_back(ptclb);
 		field = new ElectricField(gfx, manager, particles);
 		camera = new Camera(gfx, manager);
 		light = new PointLight(gfx, manager);
@@ -42,7 +47,7 @@ public:
 	{
 		auto start = steady_clock::now();
 		gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 1000.0f));
-		//field->SpawnControlWindow();
+		field->SpawnControlWindow();
 		camera->SpawnControlWindow();
 		light->SpawnControlWindow();
 		FindCentroid();
@@ -50,7 +55,7 @@ public:
 		camera->UpdateCamera(gfx);
 		light->UpdateLight(gfx);
 		field->Bind(gfx, manager);
-		field->Dispatch(gfx, manager, 10);
+		field->Dispatch(gfx, manager, 10, dt * simulationSpeed / 100);
 		for (auto entity : entities)
 		{
 			entity->Bind(gfx, manager);
@@ -59,13 +64,16 @@ public:
 		}
 		auto end = steady_clock::now();
 		dt = duration<float>(end - start).count();
-		frameRate = 60 / dt / 1000;
+		frameRate = 1 / dt;
 		frameCount++;
 		if (frameCount % 10 == 0) {
 			displayFR = frameRate;
+			displayFT = dt;
 		};
 		ImGui::Begin("Diagnostics");
 		ImGui::Text("Framerate: %.2f fps", displayFR);
+		ImGui::Text("Frametime: %.2f ms", displayFT * 1000);
+		ImGui::SliderFloat("SimulationSpeed", &simulationSpeed, 0.0f, 1.0f);
 		ImGui::End();
 	};
 
@@ -95,8 +103,11 @@ private:
 	int frameCount = 0;
 	float frameRate = 0;
 	float displayFR = 0;
-	float speedFactor = 100;
+	float displayFT = 0;
 	float dt = 0.0f;
+private:
+	float simulationSpeed = 0.0f;
 	XMFLOAT3 worldCenter = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 simulationCenter = { 0.0f, 50.0f, 0.0f };
 	XMFLOAT3 centroid;
 };

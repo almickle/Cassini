@@ -115,18 +115,24 @@ public:
 		entities[entityID].staticResources.push_back(resource);
 	}
 
-	int CreateStructuredBuffer(Graphics& gfx, string entityID, const vector<ParticleData>& data, UINT slot, bool input) {
-		GraphicsResource* resource = new StructuredBuffer(gfx, data, slot, input);
+	template<typename Data>
+	int CreateStructuredBuffer(Graphics& gfx, string entityID, const vector<Data>& data, UINT slot, bool input) {
+		GraphicsResource* resource = new StructuredBuffer<Data>(gfx, data, slot, input);
 		entities[entityID].staticResources.push_back(resource);
 		return entities[entityID].staticResources.size() - 1;
 	}
 
-public:
-	// Instance data
 	template<typename T>
 	void CreateConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT type, const T& cbData) {
 		InstanceResource* resource = new ConstantBuffer<T>(gfx, type, cbData);
 		entities[entityID].instances[instanceID].resources[resourceID] = resource;
+	};
+
+	template<typename T>
+	int CreateStaticConstantBuffer(Graphics& gfx, string entityID, UINT slot, T& cbData) {
+		GraphicsResource* resource = new StaticConstantBuffer<T>(gfx, slot, cbData);
+		entities[entityID].staticResources.push_back(resource);
+		return entities[entityID].staticResources.size() - 1;
 	};
 
 	void BindConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT slot) const {

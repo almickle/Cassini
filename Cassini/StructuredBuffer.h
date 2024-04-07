@@ -1,23 +1,24 @@
 #pragma once
 #include "GraphicsResource.h"
 
+template<typename Data>
 class StructuredBuffer :
 	public GraphicsResource
 {
 public:
-	StructuredBuffer(Graphics& gfx, const vector<ParticleData>& data, UINT in_slot, bool in_input = false)
-		: slot(in_slot), initialSize(data.size()), input(in_input), numElements(data.size()), size(sizeof(ParticleData)* data.size())
+	StructuredBuffer(Graphics& gfx, const vector<Data>& data, UINT in_slot, bool in_input = false)
+		: slot(in_slot), initialSize(data.size()), input(in_input), numElements(data.size()), size(sizeof(Data)* data.size())
 	{
 		INFOMAN(gfx);
 
 		if (input) {
 			D3D11_BUFFER_DESC bufferDesc = {};
-			bufferDesc.ByteWidth = sizeof(ParticleData) * data.size();
+			bufferDesc.ByteWidth = sizeof(Data) * data.size();
 			bufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 			bufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-			bufferDesc.StructureByteStride = sizeof(ParticleData);
+			bufferDesc.StructureByteStride = sizeof(Data);
 
 			D3D11_SUBRESOURCE_DATA sd = {};
 			sd.pSysMem = data.data();
@@ -34,12 +35,12 @@ public:
 		}
 		else {
 			D3D11_BUFFER_DESC bufferDesc = {};
-			bufferDesc.ByteWidth = sizeof(ParticleData) * data.size();
+			bufferDesc.ByteWidth = sizeof(Data) * data.size();
 			bufferDesc.Usage = D3D11_USAGE_DEFAULT;
 			bufferDesc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
 			bufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
 			bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-			bufferDesc.StructureByteStride = sizeof(ParticleData);
+			bufferDesc.StructureByteStride = sizeof(Data);
 
 			D3D11_SUBRESOURCE_DATA sd = {};
 			sd.pSysMem = data.data();
@@ -69,7 +70,7 @@ public:
 		}
 	};
 
-	vector<ParticleData> ReadFromBuffer(Graphics& gfx) {
+	vector<Data> ReadFromBuffer(Graphics& gfx) {
 		if (input) {
 			throw("Attempting to read from input buffer");
 		}
@@ -78,7 +79,7 @@ public:
 		GFX_THROW_INFO_ONLY(gfx.GetContext()->Map(pBuffer.Get(), 0, D3D11_MAP_READ, 0, &mappedResource));
 
 		// Create a vector to hold the data
-		vector<ParticleData> data(numElements);
+		vector<Data> data(numElements);
 
 		// Copy the data from the mapped resource to the vector
 		memcpy(data.data(), mappedResource.pData, size);
@@ -88,7 +89,7 @@ public:
 		return data;
 	}
 
-	void WriteToBuffer(Graphics& gfx, const vector<ParticleData>& data) {
+	void WriteToBuffer(Graphics& gfx, const vector<Data>& data) {
 		if (!input) {
 			throw("Attempting to write to an output buffer");
 		}

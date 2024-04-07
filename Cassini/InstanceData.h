@@ -43,6 +43,19 @@ struct LightBuffer {
 };
 
 struct ParticleData {
-	XMFLOAT3 x;
+	XMFLOAT3 s;
 	XMFLOAT3 v;
+};
+
+struct IntrinsicParticleData {
+	float mass;
+	float charge;
+	float radius;
+};
+
+struct alignas(16) SimulationData {
+	alignas(16) XMFLOAT3 minBoundary;
+	alignas(16) XMFLOAT3 maxBoundary;
+	unsigned int size;
+	float dt;
 };

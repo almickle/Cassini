@@ -35,20 +35,38 @@ public:
 		manager.RegisterEntity(entityID);
 		manager.RegisterInstance(entityID, instanceID);
 		manager.CreateComputeShader(gfx, entityID, "ParticleCS.cso");
-		vector<ParticleData> particleInput = {
-			{
-				{ 0.0f, 0.0f, 0.0f },
-			{ 10.0f, 10.0f, 10.0f },
-			}
-		};
-		inputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleInput, 0, true);
-		vector<ParticleData> particleOutput = {
-			{
-				{ 20.0f, 20.0f, 20.0f },
-			{ 30.0f, 30.0f, 30.0f },
-			}
-		};
-		outputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleOutput, 0, false);
+		vector<IntrinsicParticleData> intrinsicData = LoadIntrinsicData();
+		vector<ParticleData> particleData = LoadInitialParticleData();
+		SimulationData simulationData = { { -100.0f, 0.0f, -100.0f }, { 100.0f, 100.0f, 100.f }, particles.size(), 0.0f };
+		intrinsicBuffer = manager.CreateStructuredBuffer(gfx, entityID, intrinsicData, 0, true);
+		inputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleData, 1, true);
+		outputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleData, 0, false);
+		simulationBuffer = manager.CreateStaticConstantBuffer(gfx, entityID, 0u, simulationData);
+	}
+
+	vector<ParticleData> LoadInitialParticleData() {
+		vector<ParticleData> ptcls;
+		for (auto& ptcl : particles) {
+			ParticleData data = {
+				ptcl->GetPosition(),
+				ptcl->GetVelocity()
+			};
+			ptcls.push_back(data);
+		}
+		return ptcls;
+	}
+
+	vector<IntrinsicParticleData> LoadIntrinsicData() {
+		vector<IntrinsicParticleData> buffer;
+		for (auto& ptcl : particles) {
+			IntrinsicParticleData data = {
+				ptcl->GetMass(),
+				ptcl->GetCharge(),
+				ptcl->GetRadius()
+			};
+			buffer.push_back(data);
+		}
+		return buffer;
 	}
 
 	void SpawnControlWindow() {
@@ -91,14 +109,34 @@ public:
 		manager.BindStaticResources(gfx, entityID);
 		manager.BindInstanceResources(gfx, entityID, instanceID);
 	}
-	void Dispatch(Graphics& gfx, ResourceManager& manager, UINT threadCount)
+
+	void Dispatch(Graphics& gfx, ResourceManager& manager, UINT threadCount, float dt)
 	{
 		manager.Dispatch(gfx, entityID, threadCount, 1, 1);
-		StructuredBuffer* output = reinterpret_cast<StructuredBuffer*>(manager.GetStaticResourceByIndex(entityID, outputBuffer));
-		vector<ParticleData> data = output->ReadFromBuffer(gfx);
-		StructuredBuffer* input = reinterpret_cast<StructuredBuffer*>(manager.GetStaticResourceByIndex(entityID, inputBuffer));
-		input->WriteToBuffer(gfx, data);
+		vector<ParticleData> data = ProcessBufferOutput(gfx, manager);
+		UpdatePositionInformation(gfx, manager, data);
+		UpdateDeltaT(gfx, manager, dt);
 	};
+
+	void UpdateDeltaT(Graphics& gfx, ResourceManager& manager, float dt) {
+		StaticConstantBuffer<SimulationData>* resource = reinterpret_cast<StaticConstantBuffer<SimulationData>*>(manager.GetStaticResourceByIndex(entityID, simulationBuffer));
+		SimulationData data = { { -100.0f, 0.0f, -100.0f }, { 100.0f, 100.0f, 100.f }, particles.size(), dt };
+		resource->Update(gfx, data);
+	}
+
+	vector<ParticleData> ProcessBufferOutput(Graphics& gfx, ResourceManager& manager) {
+		StructuredBuffer<ParticleData>* output = reinterpret_cast<StructuredBuffer<ParticleData>*>(manager.GetStaticResourceByIndex(entityID, outputBuffer));
+		vector<ParticleData> data = output->ReadFromBuffer(gfx);
+		StructuredBuffer<ParticleData>* input = reinterpret_cast<StructuredBuffer<ParticleData>*>(manager.GetStaticResourceByIndex(entityID, inputBuffer));
+		input->WriteToBuffer(gfx, data);
+		return data;
+	}
+
+	void UpdatePositionInformation(Graphics& gfx, ResourceManager& manager, const vector<ParticleData>& data) {
+		for (int i = 0; i < data.size(); i++) {
+			particles[i]->SetPosition(data[i].s);
+		}
+	}
 private:
 	GraphicsResource* GetResource(ResourceManager& manager, int index) {
 		return manager.GetStaticResourceByIndex(entityID, index);
@@ -110,6 +148,8 @@ private:
 private:
 	int inputBuffer;
 	int outputBuffer;
+	int intrinsicBuffer;
+	int simulationBuffer;
 private:
 	vector<Particle*> particles;
 	ComPtr<ID3D11ShaderResourceView> textureSRV;

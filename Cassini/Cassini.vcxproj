@@ -166,6 +166,8 @@
     <ClCompile Include="..\..\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="StaticConstantBuffer.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -200,6 +202,8 @@
     <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="StaticConstantBuffer.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Bindables.h" />
