@@ -7,8 +7,7 @@
 class Entity
 {
 public:
-	Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath);
-	Entity(Graphics& gfx, ResourceManager& manager, const XMVECTOR& color, string meshPath, string VSPath, string PSPath);
+	Entity(Graphics& gfx, ResourceManager& manager, string entityID, string meshPath, string VSPath, string PSPath);
 	virtual ~Entity() {};
 
 	void Bind(Graphics& gfx, ResourceManager& manager);
@@ -19,23 +18,19 @@ public:
 		LightBuffer buffer = { gfx.GetLighting(), GetModelColor() };
 		UpdatePSData(gfx, manager, buffer);
 	};
-	void Draw(Graphics& gfx);
+	void Draw(Graphics& gfx, ResourceManager& manager);
 	template<typename T>
-	string AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData);
+	void AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData);
 protected:
-	void LoadMesh(string path);
+	MeshData LoadMesh(string path);
 	void UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& cbData);
 	template<typename PSData>
 	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData);
 	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& cbData);
 private:
-	string entityID;
-	string instanceID;
-	vector<string> resourceIDs;
-	vector<Vertex> vertices;
-	vector<unsigned short> indices;
-	LPWSTR VSPath;
-	LPWSTR PSPath;
+	const string entityID;
+private:
+	UINT instanceIndex;
 	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.35f };
 public:
 	XMMATRIX GetTransformation() {
@@ -46,9 +41,6 @@ public:
 	}
 	XMFLOAT3 GetPosition() {
 		return position;
-	}
-	string GetResourceID(int index) {
-		return resourceIDs[index];
 	}
 public:
 	void SetPosition(XMFLOAT3 in_position) {

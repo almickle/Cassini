@@ -1,5 +1,7 @@
 #include "PointLight.h"
 
+const string PointLight::entityID = "PointLight";
+
 PhongLightingData PointLight::ComputeLightData(Graphics& gfx) {
 	XMFLOAT3 pos = GetPosition();
 	XMVECTOR transformed = XMVector3Transform(XMLoadFloat3(&pos), gfx.GetCameraView());

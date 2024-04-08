@@ -8,7 +8,7 @@ class Camera :
 {
 
 public:
-	Camera(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, "Models\\cube.txt", "VertexShader.cso", "PixelShader.cso")
+	Camera(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, entityID, "Models\\cube.txt", "VertexShader.cso", "PixelShader.cso")
 	{
 		SetPosition({ 0.0f, 0.0f, 1.0f });
 		UpdateCamera(gfx);
@@ -32,6 +32,9 @@ public:
 	void SetTarget(XMFLOAT3 in_target) {
 		target = in_target;
 	}
+
+	static const string entityID;
+
 private:
 	void UpdateViewMatrix(Graphics& gfx, XMMATRIX transform);
 private:

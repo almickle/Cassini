@@ -47,6 +47,13 @@ struct ParticleData {
 	XMFLOAT3 v;
 };
 
+struct BondData {
+	float bondEnery;
+	float length;
+	unsigned int ptcla;
+	unsigned int ptclb;
+};
+
 struct IntrinsicParticleData {
 	float mass;
 	float charge;

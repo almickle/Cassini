@@ -6,7 +6,7 @@ class PointLight :
 {
 
 public:
-	PointLight(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, "Models\\icosphere.txt", "VertexShader.cso", "PixelShader.cso")
+	PointLight(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, entityID, "Models\\icosphere.txt", "VertexShader.cso", "PixelShader.cso")
 	{
 		SetPosition({ 5.0f, 2.0f, 7.0f });
 		SetScale({ 0.5f, 0.5f, 0.5f });
@@ -22,6 +22,9 @@ public:
 		ImGui::SliderFloat("Height", &height, -10.0f, 10.0f);
 		ImGui::End();
 	}
+
+	static const string entityID;
+
 private:
 	XMFLOAT3 ambient = { 0.5f, 0.5f, 0.5f };
 	XMFLOAT3 color = { 1.0f, 1.0f, 1.0f };

@@ -6,15 +6,16 @@
 
 using namespace utility;
 
-Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string VSPath, string PSPath)
+Entity::Entity(Graphics& gfx, ResourceManager& manager, string in_entityID, string meshPath, string VSPath, string PSPath)
+	: entityID(in_entityID)
 {
-	LoadMesh(meshPath);
-	entityID = GenerateUniqueID();
-	instanceID = GenerateUniqueID();
-	manager.RegisterEntity(entityID);
-	manager.RegisterInstance(entityID, instanceID);
-	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	manager.BindStaticResources(gfx, entityID);
+	if (!manager.CheckForEntity(entityID)) {
+		MeshData meshData = LoadMesh(meshPath);
+		manager.RegisterEntity(entityID);
+		manager.CreateStaticResources(gfx, entityID, meshData.vertices, meshData.indices, VSPath, PSPath, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		manager.BindStaticResources(gfx, entityID);
+	}
+	instanceIndex = manager.RegisterInstance(entityID);
 
 	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
 	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
@@ -23,63 +24,43 @@ Entity::Entity(Graphics& gfx, ResourceManager& manager, string meshPath, string 
 	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
 }
 
-Entity::Entity(Graphics& gfx, ResourceManager& manager, const XMVECTOR& color, string meshPath, string VSPath, string PSPath)
+void Entity::Draw(Graphics& gfx, ResourceManager& manager)
 {
-	LoadMesh(meshPath);
-	entityID = GenerateUniqueID();
-	instanceID = GenerateUniqueID();
-	manager.RegisterEntity(entityID);
-	manager.RegisterInstance(entityID, instanceID);
-	manager.CreateStaticResources(gfx, entityID, vertices, indices, VSPath, PSPath, D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	manager.BindStaticResources(gfx, entityID);
-
-	ModelViewProjection buffer = { XMMatrixTranspose(transformation), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
-	AddInstanceBuffer(gfx, manager, VERTEX_SHADER_BUFFER, buffer);
-	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, color);
-}
-
-void Entity::Draw(Graphics& gfx)
-{
-	gfx.GetContext()->DrawIndexed(indices.size(), 0, 0);
+	UINT count = reinterpret_cast<IndexBuffer*>(manager.GetStaticResourceByIndex(entityID, 1))->GetCount();
+	gfx.GetContext()->DrawIndexed(count, 0, 0);
 };
 
 void Entity::Bind(Graphics& gfx, ResourceManager& manager) {
 	manager.BindStaticResources(gfx, entityID);
-	manager.BindInstanceResources(gfx, entityID, instanceID);
-	//manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(0), 0u);
-	//manager.BindConstantBuffer(gfx, entityID, instanceID, GetResourceID(1), 0u);
+	manager.BindInstanceResources(gfx, entityID, instanceIndex);
 }
 
 template<typename T>
-string Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData) {
-	string resourceID = GenerateUniqueID();
-	resourceIDs.push_back(resourceID);
-	manager.CreateConstantBuffer(gfx, entityID, instanceID, resourceID, type, cbData);
-	return resourceID;
+void Entity::AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData) {
+	manager.CreateConstantBuffer(gfx, entityID, instanceIndex, type, cbData);
 }
 
 void Entity::UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& transform)
 {
-	string resourceID = GetResourceID(0);
 	ModelViewProjection buffer = { XMMatrixTranspose(transform), XMMatrixTranspose(gfx.GetCameraView()), XMMatrixTranspose(gfx.GetProjection()) };
-	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, buffer);
+	manager.UpdateConstantData(gfx, entityID, instanceIndex, 0u, buffer);
 }
 
 template<typename PSData>
 void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData)
 {
-	string resourceID = GetResourceID(1);
-	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, cbData);
+	manager.UpdateConstantData(gfx, entityID, instanceIndex, 1u, cbData);
 }
 
 void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& cbData)
 {
-	string resourceID = GetResourceID(1);
-	manager.UpdateConstantData(gfx, entityID, instanceID, resourceID, cbData);
+	manager.UpdateConstantData(gfx, entityID, instanceIndex, 1, cbData);
 }
 
-void Entity::LoadMesh(string path)
+MeshData Entity::LoadMesh(string path)
 {
+	struct MeshData meshData;
+
 	struct Face
 	{
 		short vIndex[3]; // Vertex indices
@@ -167,9 +148,11 @@ void Entity::LoadMesh(string path)
 				{ normals[face.nIndex[i] - 1].x, normals[face.nIndex[i] - 1].y, normals[face.nIndex[i] - 1].z },
 				{ uvs[face.uvIndex[i] - 1].u, uvs[face.uvIndex[i] - 1].v, },
 			};
-			vertices.push_back(vertex);
-			indices.push_back(index);
+			meshData.vertices.push_back(vertex);
+			meshData.indices.push_back(index);
 			index++;
 		}
 	}
+
+	return meshData;
 }

@@ -1,5 +1,8 @@
 #pragma once
 #include "Windows.h"
+#include <vector>
+
+using namespace std;
 
 struct Vertex
 {
@@ -20,6 +23,11 @@ struct Vertex
 		float u;
 		float v;
 	} textureCoordinate;
+};
+
+struct MeshData {
+	vector<Vertex> vertices;
+	vector<unsigned short> indices;
 };
 
 struct Vec3 {

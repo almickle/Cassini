@@ -167,6 +167,7 @@
     <ClCompile Include="..\..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Keyboard.cpp" />
+    <ClCompile Include="Molecule.cpp" />
     <ClCompile Include="StaticConstantBuffer.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="Particle.cpp" />
@@ -203,6 +204,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="Molecule.h" />
+    <ClInclude Include="ResourceData.h" />
     <ClInclude Include="StaticConstantBuffer.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="Particle.h" />

@@ -19,6 +19,7 @@ cbuffer Constants : register(b0)
     float dt;
 };
 
+//StructuredBuffer<IntrinsicData> bondIndices : register(t2);
 StructuredBuffer<IntrinsicData> intrinsicData : register(t0);
 StructuredBuffer<ParticleData> particle_input : register(t1);
 RWStructuredBuffer<ParticleData> particle_output : register(u0);

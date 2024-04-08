@@ -30,18 +30,19 @@ public:
 	ElectricField(Graphics& gfx, ResourceManager& manager, vector<Particle*> ptcls)
 		:particles(ptcls)
 	{
-		entityID = utility::GenerateUniqueID();
-		instanceID = utility::GenerateUniqueID();
-		manager.RegisterEntity(entityID);
-		manager.RegisterInstance(entityID, instanceID);
-		manager.CreateComputeShader(gfx, entityID, "ParticleCS.cso");
-		vector<IntrinsicParticleData> intrinsicData = LoadIntrinsicData();
-		vector<ParticleData> particleData = LoadInitialParticleData();
-		SimulationData simulationData = { { -100.0f, 0.0f, -100.0f }, { 100.0f, 100.0f, 100.f }, particles.size(), 0.0f };
-		intrinsicBuffer = manager.CreateStructuredBuffer(gfx, entityID, intrinsicData, 0, true);
-		inputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleData, 1, true);
-		outputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleData, 0, false);
-		simulationBuffer = manager.CreateStaticConstantBuffer(gfx, entityID, 0u, simulationData);
+		if (!manager.CheckForEntity(entityID)) {
+			manager.RegisterEntity(entityID);
+			manager.RegisterEntity(entityID);
+			manager.RegisterInstance(entityID);
+			manager.CreateComputeShader(gfx, entityID, "ParticleCS.cso");
+			vector<IntrinsicParticleData> intrinsicData = LoadIntrinsicData();
+			vector<ParticleData> particleData = LoadInitialParticleData();
+			SimulationData simulationData = { { -100.0f, 0.0f, -100.0f }, { 100.0f, 100.0f, 100.f }, particles.size(), 0.0f };
+			intrinsicBuffer = manager.CreateStructuredBuffer(gfx, entityID, intrinsicData, 0, true);
+			inputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleData, 1, true);
+			outputBuffer = manager.CreateStructuredBuffer(gfx, entityID, particleData, 0, false);
+			simulationBuffer = manager.CreateStaticConstantBuffer(gfx, entityID, 0u, simulationData);
+		}
 	}
 
 	vector<ParticleData> LoadInitialParticleData() {
@@ -107,7 +108,7 @@ public:
 
 	void Bind(Graphics& gfx, ResourceManager& manager) {
 		manager.BindStaticResources(gfx, entityID);
-		manager.BindInstanceResources(gfx, entityID, instanceID);
+		manager.BindInstanceResources(gfx, entityID, 0u);
 	}
 
 	void Dispatch(Graphics& gfx, ResourceManager& manager, UINT threadCount, float dt)
@@ -137,12 +138,13 @@ public:
 			particles[i]->SetPosition(data[i].s);
 		}
 	}
+
+	static const string entityID;
 private:
 	GraphicsResource* GetResource(ResourceManager& manager, int index) {
 		return manager.GetStaticResourceByIndex(entityID, index);
 	}
 private:
-	string entityID;
 	string instanceID;
 	string resourceID;
 private:

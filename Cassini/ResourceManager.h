@@ -16,22 +16,60 @@ public:
 		}
 		return instance;
 	}
-	void RegisterEntity(string entityID) {
+	void RegisterEntity(const string& entityID) {
 		entities[entityID].staticResources = {};
 		entities[entityID].instances = {};
 	};
 
-	void RegisterInstance(string entityID, string instanceID) {
-		entities[entityID].instances[instanceID] = {};
+	UINT RegisterInstance(const string& entityID) {
+		if (entities.count(entityID) > 0)
+			entities.find(entityID)->second.instances.push_back({});
+		else
+			throw("Attempting to add instance to entity that does not exist");
+		return entities.find(entityID)->second.instances.size() - 1;
+	}
+
+	bool CheckForEntity(string entityID) const {
+		if (entities.count(entityID) > 0)
+			return true;
+		else
+			return false;
+	}
+
+	void SpawnControlWindow() {
+		ImGui::Begin("Resource Manager");
+		for (auto& entity : entities) {
+			if (ImGui::TreeNode(entity.first.c_str())) {
+				if (ImGui::TreeNode("Static resources")) {
+					for (auto& resource : entity.second.staticResources) {
+						ImGui::Text("SR");
+					}
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Instances")) {
+					for (int i = 0; i < entity.second.instances.size(); i++) {
+						if (ImGui::TreeNode(to_string(i).c_str())) {
+							for (auto& resource : entity.second.instances[i].resources) {
+								ImGui::Text("IR");
+							}
+							ImGui::TreePop();
+						}
+					}
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
+		}
+		ImGui::End();
 	}
 public:
-	GraphicsResource* GetStaticResourceByIndex(string entityID, UINT index) {
+	GraphicsResource* GetStaticResourceByIndex(string entityID, UINT index) const {
 		GraphicsResource* resource = entities.find(entityID)->second.staticResources[index];
 		return resource;
 	}
 
-	InstanceResource* GetInstanceResourceByID(string entityID, string instanceID, string resourceID) {
-		InstanceResource* resource = entities.find(entityID)->second.instances.find(instanceID)->second.resources.find(resourceID)->second;
+	InstanceResource* GetInstanceResourceByID(string entityID, UINT instanceIndex, UINT resourceIndex) const {
+		InstanceResource* resource = entities.find(entityID)->second.instances[instanceIndex].resources[resourceIndex];
 		return resource;
 	}
 
@@ -52,10 +90,10 @@ public:
 			entities[entityID].staticResources[i]->Bind(gfx);
 	}
 
-	void BindInstanceResources(Graphics& gfx, string entityID, string instanceID) {
-		for (auto& resource : entities[entityID].instances[instanceID].resources)
+	void BindInstanceResources(Graphics& gfx, string entityID, UINT instanceIndex) {
+		for (auto& resource : entities[entityID].instances[instanceIndex].resources)
 		{
-			resource.second->Bind(gfx);
+			resource->Bind(gfx);
 		}
 	}
 
@@ -123,9 +161,9 @@ public:
 	}
 
 	template<typename T>
-	void CreateConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT type, const T& cbData) {
+	void CreateConstantBuffer(Graphics& gfx, string entityID, UINT instanceIndex, UINT type, const T& cbData) {
 		InstanceResource* resource = new ConstantBuffer<T>(gfx, type, cbData);
-		entities[entityID].instances[instanceID].resources[resourceID] = resource;
+		entities[entityID].instances[instanceIndex].resources.push_back(resource);
 	};
 
 	template<typename T>
@@ -135,24 +173,24 @@ public:
 		return entities[entityID].staticResources.size() - 1;
 	};
 
-	void BindConstantBuffer(Graphics& gfx, string entityID, string instanceID, string resourceID, UINT slot) const {
-		InstanceResource* resource = entities.find(entityID)->second.instances.find(instanceID)->second.resources.find(resourceID)->second;
+	void BindConstantBuffer(Graphics& gfx, string entityID, UINT instanceIndex, UINT resourceIndex, UINT slot) const {
+		InstanceResource* resource = entities.find(entityID)->second.instances[instanceIndex].resources[resourceIndex];
 		resource->Bind(gfx, slot);
 	}
 
 	template<typename T>
-	void UpdateConstantData(Graphics& gfx, string entityID, string instanceID, string resourceID, const T& cbData) const {
-		InstanceResource* resource = entities.find(entityID)->second.instances.find(instanceID)->second.resources.find(resourceID)->second;
+	void UpdateConstantData(Graphics& gfx, string entityID, UINT instanceIndex, UINT resourceIndex, const T& cbData) const {
+		InstanceResource* resource = entities.find(entityID)->second.instances[instanceIndex].resources[resourceIndex];
 		reinterpret_cast<ConstantBuffer<T>*>(resource)->Update(gfx, cbData);
 	}
 
 private:
 	struct InstanceRecord {
-		unordered_map<string, InstanceResource*> resources;
+		vector<InstanceResource*> resources;
 	};
 	struct EntityRecord {
 		vector<GraphicsResource*> staticResources;
-		unordered_map<string, InstanceRecord> instances;
+		vector<InstanceRecord> instances;
 	};
 	unordered_map<string, EntityRecord> entities;
 };
