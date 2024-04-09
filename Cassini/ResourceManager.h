@@ -1,196 +1,58 @@
 #pragma once
 #include "Bindables.h"
+#include "Entity.h"
 #include <unordered_map>
+
+struct EntityRecord {
+	vector<Shader*> shaders;
+	vector<Buffer*> buffers;
+	vector<Entity*> instances;
+};
 
 class ResourceManager
 {
 private:
-	ResourceManager() {};
+	ResourceManager();
 	static ResourceManager* instance;
-
 public:
 	ResourceManager(const ResourceManager&) = delete;
-	static ResourceManager* Get() {
-		if (instance == nullptr) {
-			instance = new ResourceManager();
-		}
-		return instance;
-	}
-	void RegisterEntity(const string& entityID) {
-		entities[entityID].staticResources = {};
-		entities[entityID].instances = {};
-	};
-
-	UINT RegisterInstance(const string& entityID) {
-		if (entities.count(entityID) > 0)
-			entities.find(entityID)->second.instances.push_back({});
-		else
-			throw("Attempting to add instance to entity that does not exist");
-		return entities.find(entityID)->second.instances.size() - 1;
-	}
-
-	bool CheckForEntity(string entityID) const {
-		if (entities.count(entityID) > 0)
-			return true;
-		else
-			return false;
-	}
-
-	void SpawnControlWindow() {
-		ImGui::Begin("Resource Manager");
-		for (auto& entity : entities) {
-			if (ImGui::TreeNode(entity.first.c_str())) {
-				if (ImGui::TreeNode("Static resources")) {
-					for (auto& resource : entity.second.staticResources) {
-						ImGui::Text("SR");
-					}
-					ImGui::TreePop();
-				}
-				if (ImGui::TreeNode("Instances")) {
-					for (int i = 0; i < entity.second.instances.size(); i++) {
-						if (ImGui::TreeNode(to_string(i).c_str())) {
-							for (auto& resource : entity.second.instances[i].resources) {
-								ImGui::Text("IR");
-							}
-							ImGui::TreePop();
-						}
-					}
-					ImGui::TreePop();
-				}
-				ImGui::TreePop();
-			}
-		}
-		ImGui::End();
-	}
+	static ResourceManager* Get();
+	void RegisterEntity(const string& entityID);
+	void RegisterInstance(const string& entityID, Entity* instance);
 public:
-	GraphicsResource* GetStaticResourceByIndex(string entityID, UINT index) const {
-		GraphicsResource* resource = entities.find(entityID)->second.staticResources[index];
-		return resource;
-	}
-
-	InstanceResource* GetInstanceResourceByID(string entityID, UINT instanceIndex, UINT resourceIndex) const {
-		InstanceResource* resource = entities.find(entityID)->second.instances[instanceIndex].resources[resourceIndex];
-		return resource;
-	}
-
+	unordered_map<string, EntityRecord> GetRegistry() const;
+	EntityRecord GetEntityRecord(const string& entityID) const;
+	Entity* GetInstance(const string& entityID, UINT index) const;
+	UINT GetInstanceCount(const string& entityID) const;
+	bool CheckForEntity(string entityID) const;
+public:
+	void DrawInstances(Graphics& gfx, const string& entityID);
+	void Dispatch(Graphics& gfx, const string& entityID, UINT threadGroupsX, UINT threadGroupsY, UINT threadGroupsZ) const;
+	void SpawnControlWindow();
 public:
 	template<typename V>
-	void CreateStaticResources(Graphics& gfx, string entityID, const vector<V>& vertices, const vector<unsigned short>& indices, string VSPath, string PSPath, D3D11_PRIMITIVE_TOPOLOGY topology) {
-		CreateVertexBuffer(gfx, entityID, vertices);
-		CreateIndexBuffer(gfx, entityID, indices);
-		VertexShader* ref = CreateVertexShader(gfx, entityID, VSPath);
-		CreatePixelShader(gfx, entityID, PSPath);
-		CreatePrimitiveTopology(gfx, entityID, topology);
-		CreateInputLayout(gfx, entityID, ref->GetBlob());
-		CreateSampler(gfx, entityID);
-	}
-
-	void BindStaticResources(Graphics& gfx, string entityID) {
-		for (int i = 0; i < entities[entityID].staticResources.size(); i++)
-			entities[entityID].staticResources[i]->Bind(gfx);
-	}
-
-	void BindInstanceResources(Graphics& gfx, string entityID, UINT instanceIndex) {
-		for (auto& resource : entities[entityID].instances[instanceIndex].resources)
-		{
-			resource->Bind(gfx);
-		}
-	}
-
-	void BatchBindResources(Graphics& gfx, string entityID, ID3D11UnorderedAccessView* uavs[3]) {
-		entities[entityID].staticResources[0]->Bind(gfx);
-		gfx.GetContext()->CSSetUnorderedAccessViews(0u, 3u, uavs, nullptr);
-	}
-
-	void Dispatch(Graphics& gfx, string entityID, UINT threadGroupsX, UINT threadGroupsY, UINT threadGroupsZ) const {
-		GraphicsResource* resource = entities.find(entityID)->second.staticResources[0];
-		reinterpret_cast<ComputeShader*>(resource)->Execute(gfx, threadGroupsX, threadGroupsY, threadGroupsZ);
-	}
-
+	UINT CreateVertexBuffer(Graphics& gfx, const string& entityID, const vector<V>& vertices, UINT slot);
+	template<typename T>
+	UINT CreateInputStructuredBuffer(Graphics& gfx, const string& entityID, const vector<T>& data, ShaderDataTypes type, UINT slot);
+	template<typename T>
+	UINT CreateOutputStructuredBuffer(Graphics& gfx, const string& entityID, const vector<T>& data, UINT slot);
+	template<typename T>
+	UINT CreateDynamicConstantBuffer(Graphics& gfx, const string& entityID, const T& cbData, ShaderDataTypes type, UINT slot);
+	template<typename T>
+	UINT CreateStaticConstantBuffer(Graphics& gfx, const string& entityID, const T& data, UINT slot);
+	UINT CreateIndexBuffer(Graphics& gfx, const string& entityID, const vector<unsigned short>& indices);
 public:
-	// Static resource creation
-	template<typename V>
-	void CreateVertexBuffer(Graphics& gfx, string entityID, const vector<V>& vertices) {
-		GraphicsResource* resource = new VertexBuffer<V>(gfx, vertices);
-		entities[entityID].staticResources.push_back(resource);
-	};
-	void CreateIndexBuffer(Graphics& gfx, string entityID, const vector<unsigned short>& indices) {
-		GraphicsResource* resource = new IndexBuffer(gfx, indices);
-		entities[entityID].staticResources.push_back(resource);
-	};
-	void CreateInputLayout(Graphics& gfx, string entityID, ComPtr<ID3DBlob> pBlob) {
-		GraphicsResource* resource = new InputLayout(gfx, pBlob);
-		entities[entityID].staticResources.push_back(resource);
-	};
-	void CreatePrimitiveTopology(Graphics& gfx, string entityID, D3D11_PRIMITIVE_TOPOLOGY topology) {
-		GraphicsResource* resource = new Topology(topology);
-		entities[entityID].staticResources.push_back(resource);
-	};
-	VertexShader* CreateVertexShader(Graphics& gfx, string entityID, string path) {
-		GraphicsResource* resource = new VertexShader(gfx, path);
-		entities[entityID].staticResources.push_back(resource);
-		return reinterpret_cast<VertexShader*>(resource);
-	};
-	void CreatePixelShader(Graphics& gfx, string entityID, string path) {
-		GraphicsResource* resource = new PixelShader(gfx, path);
-		entities[entityID].staticResources.push_back(resource);
-	};
-	void CreateRasterizer(Graphics& gfx, string entityID) {
-		GraphicsResource* resource = new Rasterizer(gfx);
-		entities[entityID].staticResources.push_back(resource);
-	};
-	void CreateComputeShader(Graphics& gfx, string entityID, string path) {
-		GraphicsResource* resource = new ComputeShader(gfx, path);
-		entities[entityID].staticResources.push_back(resource);
-	}
-	ComPtr<ID3D11ShaderResourceView> CreateTexture3D(Graphics& gfx, string entityID, const UINT res[3]) {
-		GraphicsResource* resource = new Texture3D(gfx, res);
-		entities[entityID].staticResources.push_back(resource);
-		return reinterpret_cast<Texture3D*>(resource)->GetShaderResourceView();
-	}
-	void CreateSampler(Graphics& gfx, string entityID) {
-		GraphicsResource* resource = new Sampler(gfx);
-		entities[entityID].staticResources.push_back(resource);
-	}
-
-	template<typename Data>
-	int CreateStructuredBuffer(Graphics& gfx, string entityID, const vector<Data>& data, UINT slot, bool input) {
-		GraphicsResource* resource = new StructuredBuffer<Data>(gfx, data, slot, input);
-		entities[entityID].staticResources.push_back(resource);
-		return entities[entityID].staticResources.size() - 1;
-	}
-
-	template<typename T>
-	void CreateConstantBuffer(Graphics& gfx, string entityID, UINT instanceIndex, UINT type, const T& cbData) {
-		InstanceResource* resource = new ConstantBuffer<T>(gfx, type, cbData);
-		entities[entityID].instances[instanceIndex].resources.push_back(resource);
-	};
-
-	template<typename T>
-	int CreateStaticConstantBuffer(Graphics& gfx, string entityID, UINT slot, T& cbData) {
-		GraphicsResource* resource = new StaticConstantBuffer<T>(gfx, slot, cbData);
-		entities[entityID].staticResources.push_back(resource);
-		return entities[entityID].staticResources.size() - 1;
-	};
-
-	void BindConstantBuffer(Graphics& gfx, string entityID, UINT instanceIndex, UINT resourceIndex, UINT slot) const {
-		InstanceResource* resource = entities.find(entityID)->second.instances[instanceIndex].resources[resourceIndex];
-		resource->Bind(gfx, slot);
-	}
-
-	template<typename T>
-	void UpdateConstantData(Graphics& gfx, string entityID, UINT instanceIndex, UINT resourceIndex, const T& cbData) const {
-		InstanceResource* resource = entities.find(entityID)->second.instances[instanceIndex].resources[resourceIndex];
-		reinterpret_cast<ConstantBuffer<T>*>(resource)->Update(gfx, cbData);
-	}
-
+	void CreateVertexShader(Graphics& gfx, const string& entityID, const string& path, const vector<D3D11_INPUT_ELEMENT_DESC>& layoutDesc);
+	void CreatePixelShader(Graphics& gfx, const string& entityID, const string& path);
+	void CreateComputeShader(Graphics& gfx, const string& entityID, const string& path);
+public:
+	void BindShaders(Graphics& gfx, const string& entityID) const;
+	void BindBuffers(Graphics& gfx, const string& entityID) const;
+public:
+	void UpdateBuffer(Graphics& gfx, const string& entityID, UINT index);
+public:
+	Buffer* GetBufferByIndex(string entityID, UINT index) const;
+	Shader* GetShaderByIndex(string entityID, UINT index) const;
 private:
-	struct InstanceRecord {
-		vector<InstanceResource*> resources;
-	};
-	struct EntityRecord {
-		vector<GraphicsResource*> staticResources;
-		vector<InstanceRecord> instances;
-	};
-	unordered_map<string, EntityRecord> entities;
+	unordered_map<string, EntityRecord> registry;
 };

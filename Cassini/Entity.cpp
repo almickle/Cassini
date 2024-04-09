@@ -6,7 +6,7 @@
 
 using namespace utility;
 
-Entity::Entity(Graphics& gfx, ResourceManager& manager, string in_entityID, string meshPath, string VSPath, string PSPath)
+Entity::Entity(Graphics& gfx, ResourceManager& manager, string in_entityID, string meshPath, string VSPath = "PhongVS.cso", string PSPath = "PhongPS.cso")
 	: entityID(in_entityID)
 {
 	if (!manager.CheckForEntity(entityID)) {
@@ -22,6 +22,18 @@ Entity::Entity(Graphics& gfx, ResourceManager& manager, string in_entityID, stri
 
 	LightBuffer lightBuffer = { gfx.GetLighting(), GetModelColor() };
 	AddInstanceBuffer(gfx, manager, PIXEL_SHADER_BUFFER, lightBuffer);
+}
+
+Entity::Entity(Graphics& gfx, ResourceManager& manager, string in_entityID, string meshPath)
+	: entityID(in_entityID)
+{
+	if (!manager.CheckForEntity(entityID)) {
+		manager.RegisterEntity(entityID);
+		MeshData meshData = LoadMesh(meshPath);
+		manager.CreateStaticResources(gfx, entityID, meshData.vertices, meshData.indices, "InstanceVS.cso", "InstancePS.cso", D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	}
+
+	instanceIndex = manager.RegisterInstance(entityID);
 }
 
 void Entity::Draw(Graphics& gfx, ResourceManager& manager)
@@ -52,9 +64,48 @@ void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData&
 	manager.UpdateConstantData(gfx, entityID, instanceIndex, 1u, cbData);
 }
 
-void Entity::UpdatePSData(Graphics& gfx, ResourceManager& manager, const XMFLOAT3& cbData)
+void Entity::SetPosition(XMFLOAT3 in_position) {
+	position = in_position;
+	CalculateTransformation();
+}
+void Entity::SetModelColor(XMFLOAT3 color) {
+	modelColor = color;
+}
+void Entity::SetOrientation(XMFLOAT3 in_orientation) {
+	orientation = in_orientation;
+	CalculateTransformation();
+}
+void Entity::SetScale(XMFLOAT3 in_scale)
 {
-	manager.UpdateConstantData(gfx, entityID, instanceIndex, 1, cbData);
+	scale = in_scale;
+	CalculateTransformation();
+}
+
+void Entity::CalculateTransformation() {
+	transformation = XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
+		XMMatrixScaling(scale.x, scale.y, scale.z) *
+		XMMatrixTranslation(position.x, position.y, position.z);
+}
+
+void Entity::OverrideTransform(XMMATRIX transform) {
+	transformation = transform;
+}
+
+void Entity::Update(Graphics& gfx, ResourceManager& manager, float dt) {
+	UpdateModel(dt);
+	UpdateVSData(gfx, manager, GetTransformation());
+	LightBuffer buffer = { gfx.GetLighting(), GetModelColor() };
+	UpdatePSData(gfx, manager, buffer);
+};
+
+XMMATRIX Entity::GetTransformation() const {
+	return transformation;
+}
+XMFLOAT3 Entity::GetModelColor() const {
+	return modelColor;
+}
+XMFLOAT3 Entity::GetPosition() const {
+	return position;
 }
 
 MeshData Entity::LoadMesh(string path)

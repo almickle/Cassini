@@ -18,12 +18,19 @@ public:
 		SetPosition(in_pos);
 	}
 
-	void UpdateModel(float dt) override {
-		//XMFLOAT3 oldPosition = GetPosition();
-		//XMFLOAT3 newPosition;
-		//XMStoreFloat3(&newPosition, XMLoadFloat3(&oldPosition) + XMLoadFloat3(&velocity) * dt);
-		//SetPosition(newPosition);
+	Particle(Graphics& gfx, ResourceManager& manager, const float& in_radius, const float& in_charge, XMFLOAT3 in_pos)
+		: Sphere(gfx, manager, in_radius),
+		charge(in_charge)
+	{
+		XMFLOAT3 color = in_charge > 0.0f ? XMFLOAT3(0.0f, 0.0f, 1.0f) : XMFLOAT3(1.0f, 0.0f, 0.0f);
+		if (in_charge == 0.0f) {
+			color = { 1.0f, 1.0f, 0.0f };
+		}
+		SetModelColor(color);
+		SetPosition(in_pos);
 	}
+
+	void UpdateModel(float dt) override {}
 
 public:
 	const float GetCharge() {

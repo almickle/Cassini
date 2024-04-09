@@ -19,9 +19,6 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{725c8df2-c55f-4b2f-81cb-a536a7decf93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Drawables">
-      <UniqueIdentifier>{91dd8969-90e8-4890-95f4-1a5552bf7d99}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Bindables">
       <UniqueIdentifier>{b9999bdf-6da5-466c-8403-ab2caa483ad6}</UniqueIdentifier>
     </Filter>
@@ -34,9 +31,6 @@
     <Filter Include="Header Files\Drawables\Primitives">
       <UniqueIdentifier>{472156f3-6de0-4ecf-8cc6-b620698785f7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Drawables\Primitives">
-      <UniqueIdentifier>{841b7570-e6ba-4ad9-81ae-8014f1e1db7f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="dxgi">
       <UniqueIdentifier>{64ca4d4e-f000-460c-ac43-8d051897e6b0}</UniqueIdentifier>
     </Filter>
@@ -48,6 +42,42 @@
     </Filter>
     <Filter Include="Header Files\Data">
       <UniqueIdentifier>{fcb9ed21-b1ae-4325-8bf0-2dabbbecbfec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Bindables\Buffers">
+      <UniqueIdentifier>{a6633bad-1a68-4818-8667-b88de31f9fb5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Bindables\Old">
+      <UniqueIdentifier>{bda0d0bd-b4f0-4ec8-a830-ac6d29054df6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Bindables\Shaders">
+      <UniqueIdentifier>{6b16e8a9-a318-4b81-820a-b37e3b72e4b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Bindables\Textures">
+      <UniqueIdentifier>{c0da9518-f12f-404a-9f2d-f4b0c1ed4f10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Bindables\Buffers">
+      <UniqueIdentifier>{c0ba60f8-1f62-4ad4-b2e8-96ed3401243e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Bindables\Shaders">
+      <UniqueIdentifier>{7e7f921a-f608-4e52-98bc-7c8d32c0cac4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Drawables\Props">
+      <UniqueIdentifier>{4dd49f14-9873-475a-869a-e107df47e4f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities">
+      <UniqueIdentifier>{91dd8969-90e8-4890-95f4-1a5552bf7d99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities\Primitives">
+      <UniqueIdentifier>{841b7570-e6ba-4ad9-81ae-8014f1e1db7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Entities\Props">
+      <UniqueIdentifier>{68e827c0-2d6f-45a0-8878-c75b2f7ed53c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Aux">
+      <UniqueIdentifier>{10313071-9a54-4eac-9e7c-029fbd51163a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Aux">
+      <UniqueIdentifier>{46bd0656-b962-4b9e-baad-35770e70b813}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -79,7 +109,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Source Files\Drawables</Filter>
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="DxgiInfoManager.cpp">
       <Filter>dxgi</Filter>
@@ -96,41 +126,8 @@
     <ClCompile Include="GDIPlusManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InputLayout.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="Sampler.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="Topology.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="ConstantBuffer.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="IndexBuffer.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="PixelShader.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexShader.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
     <ClCompile Include="Entity.cpp">
-      <Filter>Source Files\Drawables</Filter>
-    </ClCompile>
-    <ClCompile Include="ComputeShader.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
-    <ClCompile Include="Rasterizer.cpp">
-      <Filter>Source Files\Bindables</Filter>
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files</Filter>
@@ -138,17 +135,11 @@
     <ClCompile Include="Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GraphicsResource.cpp">
-      <Filter>Source Files\Bindables</Filter>
-    </ClCompile>
     <ClCompile Include="Sphere.cpp">
-      <Filter>Source Files\Drawables\Primitives</Filter>
-    </ClCompile>
-    <ClCompile Include="Group.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Entities\Primitives</Filter>
     </ClCompile>
     <ClCompile Include="Particle.cpp">
-      <Filter>Source Files\Drawables</Filter>
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="ElectricField.cpp">
       <Filter>Source Files</Filter>
@@ -156,26 +147,62 @@
     <ClCompile Include="StructuredBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StaticConstantBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Keyboard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Molecule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Grid.cpp">
-      <Filter>Source Files\Drawables\Primitives</Filter>
+    <ClCompile Include="Cylinder.cpp">
+      <Filter>Source Files\Entities\Primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="Bond.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ComputeShader.cpp">
+      <Filter>Source Files\Bindables\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexBuffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="PixelShader.cpp">
+      <Filter>Source Files\Bindables\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexShader.cpp">
+      <Filter>Source Files\Bindables\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Buffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="InputStructuredBuffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputStructuredBuffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Bindables\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DynamicConstantBuffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="StaticConstantBuffer.cpp">
+      <Filter>Source Files\Bindables\Buffers</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files\Drawables\Primitives</Filter>
+      <Filter>Source Files\Entities\Props</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files\Drawables\Primitives</Filter>
+    <ClCompile Include="Grid.cpp">
+      <Filter>Source Files\Entities\Props</Filter>
     </ClCompile>
     <ClCompile Include="PointLight.cpp">
-      <Filter>Source Files\Drawables\Primitives</Filter>
+      <Filter>Source Files\Entities\Props</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard.cpp">
+      <Filter>Source Files\Aux</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,56 +230,17 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputLayout.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="Sampler.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="Topology.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="PixelShader.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexShader.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
     <ClInclude Include="Bindables.h">
       <Filter>Header Files\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
       <Filter>Header Files\Drawables</Filter>
     </ClInclude>
-    <ClInclude Include="Texture3D.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="Rasterizer.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="ComputeShader.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="ConstantBuffer.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utility.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicsResource.h">
-      <Filter>Header Files\Bindables</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
@@ -266,9 +254,6 @@
     <ClInclude Include="Primitives.h">
       <Filter>Header Files\Drawables\Primitives</Filter>
     </ClInclude>
-    <ClInclude Include="Group.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Particle.h">
       <Filter>Header Files\Drawables</Filter>
     </ClInclude>
@@ -281,32 +266,92 @@
     <ClInclude Include="ElectricField.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StructuredBuffer.h">
-      <Filter>Header Files\Bindables</Filter>
-    </ClInclude>
-    <ClInclude Include="StaticConstantBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Keyboard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Molecule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Camera.h">
-      <Filter>Header Files\Drawables\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="Grid.h">
-      <Filter>Header Files\Drawables\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files\Drawables\Primitives</Filter>
-    </ClInclude>
-    <ClInclude Include="PointLight.h">
-      <Filter>Header Files\Drawables\Primitives</Filter>
-    </ClInclude>
     <ClInclude Include="ResourceData.h">
       <Filter>Header Files\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Bond.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexBuffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="ComputeShader.h">
+      <Filter>Header Files\Bindables\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="DynamicConstantBuffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShader.h">
+      <Filter>Header Files\Bindables\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexShader.h">
+      <Filter>Header Files\Bindables\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Topology.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffers.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="InputLayout.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="StructuredBuffer.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureOld.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="Rasterizer.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="Sampler.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture3D.h">
+      <Filter>Header Files\Bindables\Old</Filter>
+    </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>Header Files\Bindables\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="InputStructuredBuffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputStructuredBuffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="StaticConstantBuffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffer.h">
+      <Filter>Header Files\Bindables\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Bindables\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="Cylinder.h">
+      <Filter>Header Files\Drawables\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files\Drawables\Props</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Header Files\Drawables\Props</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>Header Files\Drawables\Props</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard.h">
+      <Filter>Header Files\Aux</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -359,6 +404,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ParticleCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="InstanceVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

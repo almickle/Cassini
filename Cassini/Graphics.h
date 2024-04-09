@@ -41,6 +41,7 @@ public:
 	}
 
 	void DrawIndexed(UINT count);
+	void DrawInstanced(UINT vertexCount, UINT instanceCount);
 
 public:
 	void SetProjection(XMMATRIX proj);

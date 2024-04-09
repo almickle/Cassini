@@ -1,10 +1,10 @@
 #pragma once
 #include "GraphicsResource.h"
 
-class Texture : public GraphicsResource
+class TextureOld : public GraphicsResource
 {
 public:
-	Texture(Graphics& gfx, UINT resolution[2]) {
+	TextureOld(Graphics& gfx, UINT resolution[2]) {
 
 		D3D11_TEXTURE2D_DESC textureDesc;
 

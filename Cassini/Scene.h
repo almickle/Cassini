@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "GDIPlusManager.h"
 #include "Graphics.h"
+#include "Molecule.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -25,7 +26,7 @@ public:
 		for (int i = 0; i < 100; i++) {
 			float charge = i % 2 == 0 ? 1.0f : -1.0f;
 			float radius = 1.0f;
-			Particle* ptcl = new Particle(gfx, manager, radius, charge, { distribution(rng), distribution(rng) + 100, distribution(rng) });
+			Particle* ptcl = new Particle(gfx, manager, radius, charge, { distribution(rng), distribution(rng) + 100, distribution(rng) }, { 0.0f, 0.0f, 0.0f });
 			particles.push_back(ptcl);
 			entities.push_back(ptcl);
 		}
@@ -35,13 +36,23 @@ public:
 		particles.push_back(ptclb);
 		entities.push_back(ptcla);
 		entities.push_back(ptclb);
-		field = new ElectricField(gfx, manager, particles);
+		//field = new ElectricField(gfx, manager, particles);
 		camera = new Camera(gfx, manager);
 		light = new PointLight(gfx, manager);
 		grid = new Grid(gfx, manager);
 		AddEntity(camera);
 		AddEntity(light);
 		AddEntity(grid);
+		AddEntity(new Cylinder(gfx, manager));
+
+		vector<Particle*> molecule;
+		for (int i = 0; i < 9; i++) {
+			Particle* ptcl = new Particle(gfx, manager, 0.1f, 0.0f, { 20.0f, 10.0f, 0.0f }, { 0.0f, 0.0f, 0.0f });
+			molecule.push_back(ptcl);
+			AddEntity(ptcl);
+		}
+		vector<BondData> bonds = { { 1.0f, 1.0f, 0, 1 }, { 1.0f, 1.0f, 1, 2 }, { 1.0f, 1.0f, 2, 3 }, { 1.0f, 1.0f, 3, 4 }, { 1.0f, 1.0f, 4, 5 }, { 1.0f, 1.0f, 5, 0 }, { 1.0f, 1.0f, 3, 6 }, { 1.0f, 1.0f, 6, 7 }, { 1.0f, 1.0f, 7, 8 } };
+		//new Molecule(gfx, manager, molecule, bonds, { 0.0f, 10.0f, 0.0f });
 	};
 	void UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager)
 	{
@@ -54,13 +65,21 @@ public:
 		camera->SetTarget(worldCenter);
 		camera->UpdateCamera(gfx);
 		light->UpdateLight(gfx);
-		field->Bind(gfx, manager);
-		field->Dispatch(gfx, manager, 100, dt * simulationSpeed / 100);
+		/*field->Bind(gfx, manager);
+		field->Dispatch(gfx, manager, 100, dt * simulationSpeed / 100);*/
 		for (auto entity : entities)
 		{
-			entity->Bind(gfx, manager);
+			//entity->Bind(gfx, manager);
 			entity->Update(gfx, manager, dt);
-			entity->Draw(gfx, manager);
+			//entity->Draw(gfx, manager);
+		}
+		for (auto& entity : manager.GetEntities())
+		{
+			manager.BindStaticResources(gfx, entity.first);
+			for (int i = 0; i < entity.second.instances.size(); i++) {
+				manager.BindInstanceResources(gfx, entity.first, i);
+			}
+			manager.DrawInstances(gfx, entity.first);
 		}
 		auto end = steady_clock::now();
 		dt = duration<float>(end - start).count();

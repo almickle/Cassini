@@ -16,7 +16,7 @@ public:
 		GFX_THROW_INFO(gfx.GetDevice()->CreateSamplerState(&samplerDesc, &pSampler));
 	}
 
-	void Bind(Graphics& gfx) const override
+	void Bind(Graphics& gfx, UINT slot) const override
 	{
 		gfx.GetContext()->VSSetSamplers(0, 1, pSampler.GetAddressOf());
 	}

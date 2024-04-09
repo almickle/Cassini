@@ -1,23 +1,18 @@
-//#pragma once
-//#include "Graphics.h"
-//#include "Particle.h"
-//#include "ResourceManager.h"
-//
-//class Molecule
-//{
-//public:
-//	Molecule(Graphics& gfx, ResourceManager& manager) {
-//
-//	}
-//
-//private:
-//	vector<Particle*> particles;
-//	vector<Bond> bonds;
-//};
-//
-//struct Bond {
-//	Particle* particles[2];
-//	float bondEnergy;
-//	float equillibriumLength;
-//};
-//
+#pragma once
+#include "Graphics.h"
+#include "Particle.h"
+#include "ResourceManager.h"
+
+class Molecule : Entity
+{
+public:
+	Molecule(Graphics& gfx, ResourceManager& manager, vector<Particle*>& ptcls, vector<BondData>& in_bonds, const XMFLOAT3& pos)
+		: Entity(gfx, manager, "Molecule", "Models\\icosphere.txt"),
+		particles(ptcls)
+	{
+
+	}
+
+private:
+	vector<Particle*> particles;
+};

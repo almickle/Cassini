@@ -5,13 +5,13 @@
 using namespace DirectX;
 
 enum ShaderDataTypes {
-	VERTEX_SHADER_BUFFER,
+	VERTEX_SHADER_BUFFER = 0,
 	COMPUTE_SHADER_BUFFER,
 	PIXEL_SHADER_BUFFER
 };
 
 enum ResourceTypes {
-	VERTEX_BUFFER,
+	VERTEX_BUFFER = 0,
 	INDEX_BUFFER,
 	INPUT_LAYOUT,
 	VERTEX_SHADER,
@@ -48,10 +48,10 @@ struct ParticleData {
 };
 
 struct BondData {
-	float bondEnery;
+	float bondEnergy;
 	float length;
-	unsigned int ptcla;
-	unsigned int ptclb;
+	unsigned short ptcla;
+	unsigned short ptclb;
 };
 
 struct IntrinsicParticleData {

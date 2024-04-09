@@ -6,6 +6,12 @@ Graphics::DrawIndexed(UINT count)
 	GFX_THROW_INFO_ONLY(pContext->DrawIndexed(count, 0u, 0u));
 }
 
+void
+Graphics::DrawInstanced(UINT indexCount, UINT instanceCount)
+{
+	GFX_THROW_INFO_ONLY(pContext->DrawIndexedInstanced(indexCount, instanceCount, 0u, 0u, 0u));
+}
+
 
 XMMATRIX
 Graphics::GetProjection() const

@@ -26,7 +26,6 @@ static IDXGISwapChain* g_pSwapChain = nullptr;
 static ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
 GDIPlusManager gdipm;
-ResourceManager* ResourceManager::instance = nullptr;
 
 static UINT g_ResizeWidth = 0, g_ResizeHeight = 0;
 

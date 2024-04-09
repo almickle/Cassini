@@ -166,14 +166,21 @@
     <ClCompile Include="..\..\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\..\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Bond.cpp" />
+    <ClCompile Include="Buffer.cpp" />
+    <ClCompile Include="Cylinder.cpp" />
+    <ClCompile Include="InputStructuredBuffer.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Molecule.cpp" />
+    <ClCompile Include="OutputStructuredBuffer.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="StaticConstantBuffer.cpp" />
     <ClCompile Include="StructuredBuffer.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ComputeShader.cpp" />
-    <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="DynamicConstantBuffer.cpp" />
     <ClCompile Include="dxerr.cpp" />
     <ClCompile Include="DxgiInfoManager.cpp" />
     <ClCompile Include="ChiliException.cpp" />
@@ -181,38 +188,39 @@
     <ClCompile Include="Entity.cpp" />
     <ClCompile Include="GDIPlusManager.cpp" />
     <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="GraphicsResource.cpp" />
     <ClCompile Include="Grid.cpp" />
-    <ClCompile Include="Group.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
-    <ClCompile Include="InputLayout.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="PixelShader.cpp" />
     <ClCompile Include="PointLight.cpp" />
-    <ClCompile Include="Rasterizer.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
-    <ClCompile Include="Sampler.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Sphere.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Topology.cpp" />
     <ClCompile Include="Utility.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bond.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Buffers.h" />
+    <ClInclude Include="Cylinder.h" />
+    <ClInclude Include="InputStructuredBuffer.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Molecule.h" />
+    <ClInclude Include="OutputStructuredBuffer.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ResourceData.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Shaders.h" />
     <ClInclude Include="StaticConstantBuffer.h" />
     <ClInclude Include="StructuredBuffer.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Bindables.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ComputeShader.h" />
-    <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="DynamicConstantBuffer.h" />
     <ClInclude Include="dxerr.h" />
     <ClInclude Include="DxgiInfoManager.h" />
     <ClInclude Include="ChiliException.h" />
@@ -221,14 +229,11 @@
     <ClInclude Include="Entity.h" />
     <ClInclude Include="GDIPlusManager.h" />
     <ClInclude Include="Graphics.h" />
-    <ClInclude Include="GraphicsResource.h" />
     <ClInclude Include="GraphicsThrowMacros.h" />
     <ClInclude Include="Grid.h" />
-    <ClInclude Include="Group.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputLayout.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="PixelShader.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Primitives.h" />
@@ -238,7 +243,7 @@
     <ClInclude Include="Sampler.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="Sphere.h" />
-    <ClInclude Include="Texture.h" />
+    <ClInclude Include="TextureOld.h" />
     <ClInclude Include="Texture3D.h" />
     <ClInclude Include="Topology.h" />
     <ClInclude Include="InstanceData.h" />
@@ -292,6 +297,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="InstanceVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="ParticleCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>

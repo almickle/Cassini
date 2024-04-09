@@ -1,26 +1,14 @@
 #pragma once
-#include "GraphicsResource.h"
-#include "Utility.h"
+#include "Shader.h"
 
-class VertexShader : public GraphicsResource
+class VertexShader : public Shader
 {
 public:
-	VertexShader(Graphics& gfx, string path)
-	{
-
-		LPWSTR converted = utility::ConvertToLPWSTR(path);
-		D3DReadFileToBlob(converted, &pBlob);
-		gfx.GetDevice()->CreateVertexShader(pBlob->GetBufferPointer(), pBlob->GetBufferSize(), nullptr, &pVertexShader);
-	};
-
-	void Bind(Graphics& gfx) const override
-	{
-		gfx.GetContext()->VSSetShader(pVertexShader.Get(), nullptr, 0u);
-	}
-
-	ComPtr<ID3DBlob> GetBlob() { return pBlob; }
-
+	VertexShader(Graphics& gfx, const string& path, const vector<D3D11_INPUT_ELEMENT_DESC>& layoutDesc);
+	void Bind(Graphics& gfx) const override;
+	void SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY type);
 private:
 	ComPtr<ID3D11VertexShader> pVertexShader;
-	ComPtr<ID3DBlob> pBlob;
+	ComPtr<ID3D11InputLayout> pInputLayout;
+	D3D11_PRIMITIVE_TOPOLOGY topology = D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 };
