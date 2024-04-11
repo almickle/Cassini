@@ -24,6 +24,7 @@ ParticleSystem::ParticleSystem(Graphics& gfx, ResourceManager& manager, UINT cou
 	vector<IntrinsicParticleData> intrinsicData(particles.size());
 	vector<ParticleData> inputData(particles.size());
 	vector<ParticleData> outputData(particles.size());
+	vector<XMFLOAT3> instanceColors(particles.size());
 	StaticSimulationData staticData = {
 		{ bounds.xMin, bounds.yMin, bounds.zMin },
 		{ bounds.xMax, bounds.yMax, bounds.zMax },
@@ -37,6 +38,7 @@ ParticleSystem::ParticleSystem(Graphics& gfx, ResourceManager& manager, UINT cou
 		inputData[i] = { ptcl->GetPosition(), ptcl->GetVelocity() };
 		outputData[i] = { ptcl->GetPosition(), ptcl->GetVelocity() };
 		instanceTransforms[i] = ptcl->GetTransform();
+		instanceColors[i] = ptcl->GetModelColor();
 	}
 	intrinsicPtclData = manager.CreateInputStructuredBuffer(gfx, systemID, intrinsicData, COMPUTE_SHADER_BUFFER, 0u, SYSTEM);
 	inputPtclData = manager.CreateInputStructuredBuffer(gfx, systemID, inputData, COMPUTE_SHADER_BUFFER, 1u, SYSTEM);
@@ -44,6 +46,7 @@ ParticleSystem::ParticleSystem(Graphics& gfx, ResourceManager& manager, UINT cou
 	staticBuffer = manager.CreateStaticConstantBuffer(gfx, systemID, staticData, COMPUTE_SHADER_BUFFER, 0u, SYSTEM);
 	dynamicBuffer = manager.CreateDynamicConstantBuffer(gfx, systemID, dynamicData, COMPUTE_SHADER_BUFFER, 1u, SYSTEM);
 	ptclTransforms = manager.CreateInputStructuredBuffer(gfx, Particle::GetEntityID(), systemID, instanceTransforms, VERTEX_SHADER_BUFFER, 0u);
+	ptclColors = manager.CreateInputStructuredBuffer(gfx, Particle::GetEntityID(), systemID, instanceColors, PIXEL_SHADER_BUFFER, 0u);
 }
 
 void ParticleSystem::Update(Graphics& gfx, ResourceManager& manager)

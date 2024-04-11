@@ -10,11 +10,11 @@ Sphere::Sphere(Graphics& gfx, ResourceManager& manager, const string& in_entityI
 	SetScale({ in_radius, in_radius, in_radius });
 	if (!manager.IsStaticInitialized(in_entityID, systemID))
 	{
+		mesh = LoadMesh("Models\\icosphere.obj");
 		manager.CreateVertexShader(gfx, in_entityID, systemID, "InstanceVS.cso", ld);
 		manager.CreateVertexBuffer(gfx, in_entityID, systemID, mesh.vertices, 0u);
 		manager.CreateIndexBuffer(gfx, in_entityID, systemID, mesh.indices);
-		manager.CreatePixelShader(gfx, in_entityID, systemID, "PhongPS.cso");
-		manager.CreateStaticConstantBuffer(gfx, in_entityID, systemID, ModelColor{ GetModelColor() }, PIXEL_SHADER_BUFFER, 1u, ENTITY);
+		manager.CreatePixelShader(gfx, in_entityID, systemID, "InstancePS.cso");
 	}
 }
 

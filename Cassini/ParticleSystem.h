@@ -26,6 +26,7 @@ private:
 	UINT staticBuffer;
 	UINT dynamicBuffer;
 	UINT ptclTransforms;
+	UINT ptclColors;
 public:
 	void SpawnControlWindow();
 private:

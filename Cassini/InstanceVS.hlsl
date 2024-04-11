@@ -15,6 +15,7 @@ struct VSOut
     float3 worldPos : Position;
     float3 normal : Normal;
     float2 tc : TextureCoordinate;
+    uint id : SV_InstanceID;
     float4 pos : SV_Position;
 };
 
@@ -33,10 +34,9 @@ cbuffer GlobalBuffer : register(b0)
 
 StructuredBuffer<InstanceInput> instanceBuffer : register(t0);
 
-
 VSOut main( VSInput vertex, in uint instanceID : SV_InstanceID)
 {
-    VSOut vso = { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f } };
+    VSOut vso;
     vso.worldPos = mul( float4( vertex.pos, 1.0f ), instanceBuffer[instanceID].modelMatrix );
     vso.worldPos = mul( float4( vso.worldPos, 1.0f ), viewMatrix );
     vso.normal = mul( vertex.n, (float3x3) instanceBuffer[instanceID].modelMatrix );
@@ -45,5 +45,6 @@ VSOut main( VSInput vertex, in uint instanceID : SV_InstanceID)
     vso.pos = mul( vso.pos, viewMatrix );
     vso.pos = mul( vso.pos, projectionMatrix );
     vso.tc = vertex.tc;
+    vso.id = instanceID;
     return vso;
 }
