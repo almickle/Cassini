@@ -1,4 +1,6 @@
+#include "Entity.h"
 #include "ResourceManager.h"
+#include "System.h"
 
 ResourceManager* ResourceManager::instance = nullptr;
 
@@ -11,173 +13,353 @@ ResourceManager* ResourceManager::Get() {
 	return instance;
 }
 
+// Entity bookkeeping
 void ResourceManager::RegisterEntity(const string& entityID)
 {
-	registry.emplace(entityID, EntityRecord{});
+	registry.entities.emplace(entityID, EntityRecord{});
 }
-
-void ResourceManager::RegisterInstance(const string& entityID, Entity* entity)
+void ResourceManager::RegisterInstance(const string& entityID, Entity* instance)
 {
 	if (CheckForEntity(entityID))
-		registry.find(entityID)->second.instances.push_back({});
+		registry.entities.find(entityID)->second.instances.push_back(instance);
 	else
 		throw("Attempting to add instance to entity that does not exist");
 }
-
-unordered_map<string, EntityRecord> ResourceManager::GetRegistry() const
+unordered_map<string, EntityRecord> ResourceManager::GetEntityList() const
 {
-	return registry;
+	return registry.entities;
 }
-
 EntityRecord ResourceManager::GetEntityRecord(const string& entityID) const
 {
-	return registry.find(entityID)->second;
+	return registry.entities.find(entityID)->second;
 }
-
+vector<Entity*> ResourceManager::GetInstances(const string& entityID) const
+{
+	return registry.entities.find(entityID)->second.instances;
+}
 Entity* ResourceManager::GetInstance(const string& entityID, UINT index) const
 {
-	return registry.find(entityID)->second.instances[index];
+	return registry.entities.find(entityID)->second.instances[index];
 }
-
-
 UINT ResourceManager::GetInstanceCount(const string& entityID) const
 {
-	return registry.find(entityID)->second.instances.size();
+	return registry.entities.find(entityID)->second.instances.size();
 }
-
-bool ResourceManager::CheckForEntity(string entityID) const
+UINT ResourceManager::GetInstanceCount(const string& entityID, const string& systemID) const
 {
-	if (registry.count(entityID) > 0)
+	return registry.systems.find(systemID)->second.entities.find(entityID)->second.instances.size();
+}
+bool ResourceManager::CheckForEntity(const string& entityID) const
+{
+	if (registry.entities.count(entityID) > 0)
 		return true;
 	else
 		return false;
 }
-
-// Resource retrieval
-Buffer* ResourceManager::GetBufferByIndex(string entityID, UINT index) const
+bool ResourceManager::IsStaticInitialized(const string& entityID) const
 {
-	Buffer* buffer = registry.find(entityID)->second.buffers[index];
-	return buffer;
+	return GetInstanceCount(entityID) > 1u;
+}
+bool ResourceManager::IsStaticInitialized(const string& entityID, const string& systemID) const
+{
+	return GetInstanceCount(entityID, systemID) > 1u;
 }
 
-Shader* ResourceManager::GetShaderByIndex(string entityID, UINT index) const
+// System bookkeeping
+void ResourceManager::RegisterSystem(const string& systemID)
 {
-	Shader* shader = registry.find(entityID)->second.shaders[index];
-	return shader;
+	registry.systems.emplace(systemID, SystemRecord{});
 }
+void ResourceManager::RegisterSystemInstance(const string& systemID, System* instance)
+{
+	if (CheckForSystem(systemID))
+		registry.systems.find(systemID)->second.instances.push_back(instance);
+	else
+		throw("Attempting to add instance to a system that does not exist");
+}
+unordered_map<string, SystemRecord> ResourceManager::GetSystemList() const
+{
+	return registry.systems;
+}
+unordered_map<string, EntityRecord> ResourceManager::GetSystemEntityList(const string& systemID) const
+{
+	return registry.systems.find(systemID)->second.entities;
+}
+void ResourceManager::RegisterEntityToSystem(const string& systemID, const string& entityID)
+{
+	registry.systems.find(systemID)->second.entities.emplace(entityID, EntityRecord{});
+}
+void ResourceManager::RegisterEntityInstanceToSystem(const string& systemID, const string& entityID, Entity* instance)
+{
+	registry.systems.find(systemID)->second.entities.find(entityID)->second.instances.push_back(instance);
+}
+bool ResourceManager::ResourceManager::CheckForSystem(const string& systemID) const
+{
+	if (registry.systems.count(systemID) > 0)
+		return true;
+	else
+		return false;
+}
+bool ResourceManager::CheckForEntityInSystem(const string& systemID, const string& entityID)
+{
+	if (registry.systems.find(systemID)->second.entities.count(entityID) > 0)
+		return true;
+	else
+		return false;
+}
+vector<System*> ResourceManager::GetSystemInstances(const string& systemID) const
+{
+	return registry.systems.find(systemID)->second.instances;
+}
+
 
 // Resource binding
-void ResourceManager::BindShaders(Graphics& gfx, const string& entityID) const
+void ResourceManager::BindGlobalBuffers(Graphics& gfx) const
 {
-	for (auto& shader : registry.find(entityID)->second.shaders)
+	for (auto& buffer : registry.globalBuffers)
+	{
+		buffer->Bind(gfx);
+	}
+}
+void ResourceManager::BindResources(Graphics& gfx, const string& recordID, const RecordType& recordType) const
+{
+	BindShaders(gfx, recordID, recordType);
+	BindBuffers(gfx, recordID, recordType);
+}
+void ResourceManager::BindResources(Graphics& gfx, const string& systemID, const string& entityID) const
+{
+	BindShaders(gfx, systemID, entityID);
+	BindBuffers(gfx, systemID, entityID);
+}
+void ResourceManager::BindShaders(Graphics& gfx, const string& recordID, RecordType recordType) const
+{
+	switch (recordType)
+	{
+	case ENTITY:
+	{
+		for (auto& shader : registry.entities.find(recordID)->second.shaders)
+			shader->Bind(gfx);
+	}
+	break;
+	case SYSTEM:
+	{
+		for (auto& shader : registry.systems.find(recordID)->second.systemShaders)
+			shader->Bind(gfx);
+	}
+	break;
+	}
+}
+
+void ResourceManager::BindBuffers(Graphics& gfx, const string& recordID, RecordType recordType) const
+{
+	switch (recordType)
+	{
+	case ENTITY:
+	{
+		for (auto& buffer : registry.entities.find(recordID)->second.buffers)
+			buffer->Bind(gfx);
+	}
+	break;
+	case SYSTEM:
+	{
+		for (auto& buffer : registry.systems.find(recordID)->second.systemBuffers)
+			buffer->Bind(gfx);
+	}
+	break;
+	}
+}
+void ResourceManager::BindBuffers(Graphics& gfx, const string& systemID, const string& entityID) const
+{
+	for (auto& buffer : registry.systems.find(systemID)->second.entities.find(entityID)->second.buffers)
+		buffer->Bind(gfx);
+}
+void ResourceManager::BindShaders(Graphics& gfx, const string& systemID, const string& entityID) const
+{
+	for (auto& shader : registry.systems.find(systemID)->second.entities.find(entityID)->second.shaders)
 		shader->Bind(gfx);
 }
 
-void ResourceManager::BindBuffers(Graphics& gfx, const string& entityID) const
+
+void ResourceManager::DrawEntityInstances(Graphics& gfx, const string& entityID)
 {
-	for (auto& buffer : registry.find(entityID)->second.buffers)
-		buffer->Bind(gfx);
+	EntityRecord entity = registry.entities.find(entityID)->second;
+	gfx.DrawInstancedIndexed(entity.indexCount, entity.instances.size());
 }
 
-// Buffer creation
-template<typename V>
-UINT ResourceManager::CreateVertexBuffer(Graphics& gfx, const string& entityID, const vector<V>& vertices, UINT slot)
+void ResourceManager::DrawSystemEntityInstances(Graphics& gfx, const string& systemID, const string& entityID)
 {
-	Buffer* buffer = new VertexBuffer<V>(gfx, vertices, slot);
-	registry.find(entityID)->second.buffers.push_back(buffer);
-	return registry.find(entityID)->second.buffers.size() - 1;
+	EntityRecord entity = registry.systems.find(systemID)->second.entities.find(entityID)->second;
+	gfx.DrawInstancedIndexed(entity.indexCount, entity.instances.size());
 }
 
-template<typename T>
-UINT ResourceManager::CreateInputStructuredBuffer(Graphics& gfx, const string& entityID, const vector<T>& data, ShaderDataTypes type, UINT slot)
+
+
+// Resource retrieval
+Buffer* ResourceManager::GetGlobalBufferByIndex(const string& entityID, UINT index) const
 {
-	Buffer* buffer = new InputStructuredBuffer<T>(gfx, data, slot);
-	registry.find(entityID)->second.buffers.push_back(buffer);
-	return registry.find(entityID)->second.buffers.size() - 1;
+	return registry.globalBuffers[index];
+}
+Buffer* ResourceManager::GetBufferByIndex(const string& entityID, UINT index) const
+{
+	Buffer* buffer = registry.entities.find(entityID)->second.buffers[index];
+	return buffer;
+}
+Buffer* ResourceManager::GetBufferByIndex(const string& systemID, const string& entityID, UINT index) const
+{
+	Buffer* buffer = registry.systems.find(systemID)->second.entities.find(entityID)->second.buffers[index];
+	return buffer;
+}
+Buffer* ResourceManager::GetSystemBufferByIndex(const string& systemID, UINT index) const
+{
+	Buffer* buffer = registry.systems.find(systemID)->second.systemBuffers[index];
+	return buffer;
 }
 
-template<typename T>
-UINT ResourceManager::CreateOutputStructuredBuffer(Graphics& gfx, const string& entityID, const vector<T>& data, UINT slot)
+Shader* ResourceManager::GetShaderByIndex(const string& entityID, UINT index) const
 {
-	Buffer* buffer = new OutputStructuredBuffer<T>(gfx, data, slot);
-	registry.find(entityID)->second.buffers.push_back(buffer);
-	return registry.find(entityID)->second.buffers.size() - 1;
-}
-
-template<typename T>
-UINT ResourceManager::CreateDynamicConstantBuffer(Graphics& gfx, const string& entityID, const T& cbData, ShaderDataTypes type, UINT slot)
-{
-	Buffer* buffer = new DynamicConstantBuffer<T>(gfx, cbData, slot);
-	registry.find(entityID)->second.buffers.push_back(buffer);
-	return registry.find(entityID)->second.buffers.size() - 1;
-}
-
-template<typename T>
-UINT ResourceManager::CreateStaticConstantBuffer(Graphics& gfx, const string& entityID, const T& data, UINT slot)
-{
-	Buffer* buffer = new StaticConstantBuffer<T>(gfx, cbData, slot);
-	registry.find(entityID)->second.buffers.push_back(buffer);
-	return registry.find(entityID)->second.buffers.size() - 1;
+	Shader* shader = registry.entities.find(entityID)->second.shaders[index];
+	return shader;
 }
 
 UINT ResourceManager::CreateIndexBuffer(Graphics& gfx, const string& entityID, const vector<unsigned short>& indices)
 {
 	Buffer* buffer = new IndexBuffer(gfx, indices);
-	registry.find(entityID)->second.buffers.push_back(buffer);
-	return registry.find(entityID)->second.buffers.size() - 1;
+	registry.entities.find(entityID)->second.buffers.push_back(buffer);
+	registry.entities.find(entityID)->second.indexCount = indices.size();
+	return registry.entities.find(entityID)->second.buffers.size() - 1;
+}
+UINT ResourceManager::CreateIndexBuffer(Graphics& gfx, const string& entityID, const string& systemID, const vector<unsigned short>& indices)
+{
+	Buffer* buffer = new IndexBuffer(gfx, indices);
+	registry.systems.find(systemID)->second.entities.find(entityID)->second.buffers.push_back(buffer);
+	registry.systems.find(systemID)->second.entities.find(entityID)->second.indexCount = indices.size();
+	return registry.systems.find(systemID)->second.entities.find(entityID)->second.buffers.size() - 1;
 }
 
 // Shader creation
-void ResourceManager::CreateVertexShader(Graphics& gfx, const string& entityID, const string& path, const vector<D3D11_INPUT_ELEMENT_DESC>& layoutDesc) {
+void ResourceManager::CreateVertexShader(Graphics& gfx, const string& recordID, const string& path, const vector<D3D11_INPUT_ELEMENT_DESC>& layoutDesc)
+{
 	Shader* shader = new VertexShader(gfx, path, layoutDesc);
-	registry.find(entityID)->second.shaders.push_back(shader);
+	registry.entities.find(recordID)->second.shaders.push_back(shader);
 }
-
-void ResourceManager::CreatePixelShader(Graphics& gfx, const string& entityID, const string& path) {
+void ResourceManager::CreateVertexShader(Graphics& gfx, const string& entityID, const string& systemID, const string& path, const vector<D3D11_INPUT_ELEMENT_DESC>& layoutDesc)
+{
+	Shader* shader = new VertexShader(gfx, path, layoutDesc);
+	registry.systems.find(systemID)->second.entities.find(entityID)->second.shaders.push_back(shader);
+}
+void ResourceManager::CreatePixelShader(Graphics& gfx, const string& recordID, const string& path)
+{
 	Shader* shader = new PixelShader(gfx, path);
-	registry.find(entityID)->second.shaders.push_back(shader);
+	registry.entities.find(recordID)->second.shaders.push_back(shader);
+}
+void ResourceManager::CreatePixelShader(Graphics& gfx, const string& entityID, const string& systemID, const string& path)
+{
+	Shader* shader = new PixelShader(gfx, path);
+	registry.systems.find(systemID)->second.entities.find(entityID)->second.shaders.push_back(shader);
 }
 
-void ResourceManager::CreateComputeShader(Graphics& gfx, const string& entityID, const string& path) {
+void ResourceManager::CreateComputeShader(Graphics& gfx, const string& recordID, const string& path, const RecordType& recordType)
+{
 	Shader* shader = new ComputeShader(gfx, path);
-	registry.find(entityID)->second.shaders.push_back(shader);
+	switch (recordType)
+	{
+	case ENTITY:
+	{
+		registry.entities.find(recordID)->second.shaders.push_back(shader);
+	}
+	break;
+	case SYSTEM:
+	{
+		registry.systems.find(recordID)->second.systemShaders.push_back(shader);
+	}
+	break;
+	}
 }
 
-//void ResourceManager::SpawnControlWindow() {
-//	ImGui::Begin("Resource Manager");
-//	for (auto& entity : entities) {
-//		if (ImGui::TreeNode(entity.first.c_str())) {
-//			if (ImGui::TreeNode("Static resources")) {
-//				for (auto& resource : entity.second.staticResources) {
-//					ImGui::Text("SR");
-//				}
-//				ImGui::TreePop();
-//			}
-//			if (ImGui::TreeNode("Instances")) {
-//				for (int i = 0; i < entity.second.instances.size(); i++) {
-//					if (ImGui::TreeNode(to_string(i).c_str())) {
-//						for (auto& resource : entity.second.instances[i].resources) {
-//							ImGui::Text("IR");
-//						}
-//						ImGui::TreePop();
-//					}
-//				}
-//				ImGui::TreePop();
-//			}
-//			ImGui::TreePop();
-//		}
-//	}
-//	ImGui::End();
-//}
-
-//void ResourceManager::DrawInstances(Graphics& gfx, const string& entityID)
-//{
-//	UINT indexCount = reinterpret_cast<IndexBuffer*>(GetStaticResourceByIndex(entityID, 1))->GetCount();
-//	UINT instanceCount = GetInstanceCount(entityID);
-//	gfx.DrawInstanced(indexCount, instanceCount);
-//};
-
-//void ResourceManager::Dispatch(Graphics& gfx, string entityID, UINT threadGroupsX, UINT threadGroupsY, UINT threadGroupsZ) const {
-//	GraphicsResource* resource = entities.find(entityID)->second.staticResources[0];
-//	reinterpret_cast<ComputeShader*>(resource)->Execute(gfx, threadGroupsX, threadGroupsY, threadGroupsZ);
-//}
+void ResourceManager::SpawnControlWindow() {
+	ImGui::Begin("Resource Manager");
+	if (ImGui::TreeNode("Systems")) {
+		for (auto& system : registry.systems) {
+			if (ImGui::TreeNode(system.first.c_str())) {
+				if (ImGui::TreeNode("Shaders"))
+				{
+					for (auto& shader : system.second.systemShaders) {
+						ImGui::Text("Shader");
+					}
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Buffers"))
+				{
+					for (auto& buffer : system.second.systemBuffers) {
+						ImGui::Text("Buffer");
+					}
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Entities"))
+				{
+					for (auto& entity : system.second.entities) {
+						if (ImGui::TreeNode(entity.first.c_str())) {
+							if (ImGui::TreeNode("Shaders")) {
+								for (auto& shader : entity.second.shaders) {
+									ImGui::Text("Shader");
+								}
+								ImGui::TreePop();
+							}
+							if (ImGui::TreeNode("Buffers"))
+							{
+								for (auto& buffer : entity.second.buffers) {
+									ImGui::Text("Buffer");
+								}
+								ImGui::TreePop();
+							}
+							if (ImGui::TreeNode("Instances"))
+							{
+								for (int i = 0; i < entity.second.instances.size(); i++) {
+									ImGui::Text(to_string(i).c_str());
+								}
+								ImGui::TreePop();
+							}
+							ImGui::TreePop();
+						}
+					}
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
+		}
+		ImGui::TreePop();
+	}
+	if (ImGui::TreeNode("Entities"))
+	{
+		for (auto& entity : registry.entities)
+		{
+			if (ImGui::TreeNode(entity.first.c_str()))
+			{
+				if (ImGui::TreeNode("Shaders"))
+				{
+					for (auto& shader : entity.second.shaders) {
+						ImGui::Text("Shader");
+					}
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Buffers"))
+				{
+					for (auto& buffer : entity.second.buffers) {
+						ImGui::Text("Buffer");
+					}
+					ImGui::TreePop();
+				}
+				if (ImGui::TreeNode("Instances"))
+				{
+					for (int i = 0; i < entity.second.instances.size(); i++) {
+						ImGui::Text(to_string(i).c_str());
+					}
+					ImGui::TreePop();
+				}
+				ImGui::TreePop();
+			}
+		}
+		ImGui::TreePop();
+	}
+	ImGui::End();
+}

@@ -1,8 +1,12 @@
-cbuffer VSConstantData
+cbuffer GlobalBuffer : register(b0)
 {
-    matrix modelMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
+};
+
+cbuffer Transform : register(b1)
+{
+    matrix modelMatrix;
 };
 
 struct VSOut

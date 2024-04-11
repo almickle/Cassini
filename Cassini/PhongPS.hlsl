@@ -1,8 +1,12 @@
-cbuffer PointLight
+cbuffer PointLight : register(b0)
 {
     float3 position;
     float3 color;
     float3 ambient;
+};
+
+cbuffer Color : register(b1)
+{
     float3 modelColor;
 };
 

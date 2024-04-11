@@ -1,8 +1,8 @@
-#pragma once
-#include "Cylinder.h"
-
-class Bond :
-	public Cylinder
-{
-};
-
+//#pragma once
+//#include "Cylinder.h"
+//
+//class Bond :
+//	public Cylinder
+//{
+//};
+//

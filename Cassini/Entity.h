@@ -6,39 +6,26 @@
 
 class Entity
 {
-public:
-	Entity(Graphics& gfx, ResourceManager& manager, string entityID, string meshPath, string VSPath, string PSPath);
-	Entity(Graphics& gfx, ResourceManager& manager, string entityID, string meshPath);
+protected:
+	Entity(Graphics& gfx, ResourceManager& manager, const string& entityID);
+	Entity(Graphics& gfx, ResourceManager& manager, const string& entityID, const string& systemID);
 	virtual ~Entity() {};
 public:
-	virtual void UpdateModel(float dt) {};
-	virtual void Update(Graphics& gfx, ResourceManager& manager, float dt);
+	virtual void Update(Graphics& gfx, ResourceManager& manager) = 0;
 public:
-	void Bind(Graphics& gfx, ResourceManager& manager);
-	void Draw(Graphics& gfx, ResourceManager& manager);
-public:
-	template<typename T>
-	void AddInstanceBuffer(Graphics& gfx, ResourceManager& manager, UINT type, const T& cbData);
-protected:
-	MeshData LoadMesh(string path);
-	void UpdateVSData(Graphics& gfx, ResourceManager& manager, const XMMATRIX& cbData);
-	template<typename PSData>
-	void UpdatePSData(Graphics& gfx, ResourceManager& manager, const PSData& cbData);
-public:
-	XMMATRIX GetTransformation() const;
+	XMMATRIX GetTransform() const;
 	XMFLOAT3 GetModelColor() const;
 	XMFLOAT3 GetPosition() const;
 public:
-	void SetPosition(XMFLOAT3 in_position);
-	void SetModelColor(XMFLOAT3 color);
-	void SetOrientation(XMFLOAT3 in_orientation);
-	void SetScale(XMFLOAT3 in_scale);
+	void SetPosition(const XMFLOAT3& in_position);
+	void SetModelColor(const XMFLOAT3& color);
+	void SetOrientation(const XMFLOAT3& in_orientation);
+	void SetScale(const XMFLOAT3& in_scale);
+	void OverrideTransform(const XMMATRIX& transform);
 public:
 	void CalculateTransformation();
-	void OverrideTransform(XMMATRIX transform);
 private:
 	const string entityID;
-	UINT instanceIndex;
 private:
 	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.35f };
 	XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
@@ -48,4 +35,6 @@ private:
 		XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
 		XMMatrixScaling(scale.x, scale.y, scale.z) *
 		XMMatrixTranslation(position.x, position.y, position.z);
+protected:
+	MeshData LoadMesh(const string& path);
 };

@@ -1,43 +1,66 @@
 #include "Graphics.h"
 
-void
-Graphics::DrawIndexed(UINT count)
+Graphics::Graphics(ID3D11Device* g_pd3dDevice,
+	ID3D11DeviceContext* g_pd3dDeviceContext,
+	IDXGISwapChain* g_pSwapChain,
+	ID3D11DeviceContext* g_pd3dDeferredContext)
+{
+	pDevice = g_pd3dDevice;
+	pContext = g_pd3dDeviceContext;
+	pSwap = g_pSwapChain;
+	pDeferredContext = g_pd3dDeferredContext;
+
+	infoManager.Set();
+
+	FetchResolution();
+
+	CreatDepthBuffer();
+	CreateSceneTexture();
+}
+
+void Graphics::DrawIndexed(UINT count)
 {
 	GFX_THROW_INFO_ONLY(pContext->DrawIndexed(count, 0u, 0u));
 }
 
-void
-Graphics::DrawInstanced(UINT indexCount, UINT instanceCount)
+void Graphics::DrawInstancedIndexed(UINT indexCount, UINT instanceCount)
 {
 	GFX_THROW_INFO_ONLY(pContext->DrawIndexedInstanced(indexCount, instanceCount, 0u, 0u, 0u));
 }
 
-
-XMMATRIX
-Graphics::GetProjection() const
+void Graphics::Dispatch(UINT threadGroupsX, UINT threadGroupsY, UINT threadGroupsZ)
 {
-	return projection;
+	GFX_THROW_INFO_ONLY(pContext->Dispatch(threadGroupsX, threadGroupsY, threadGroupsZ));
 }
-void
-Graphics::SetProjection(XMMATRIX proj)
+
+XMMATRIX Graphics::GetProjection() const
+{
+	return XMMatrixTranspose(projection);
+}
+
+void Graphics::SetProjection(XMMATRIX proj)
 {
 	projection = proj;
 }
 
-XMMATRIX
-Graphics::GetCameraView() const
-{
-	return XMMatrixInverse(nullptr, cameraTransform);
+void Graphics::SetLighting(PhongLightingData cbData) {
+	lightData = cbData;
+}
+PhongLightingData Graphics::GetLighting() const {
+	return lightData;
 }
 
-void
-Graphics::SetCameraTransform(XMMATRIX tansform)
+XMMATRIX Graphics::GetCameraView() const
+{
+	return XMMatrixTranspose(XMMatrixInverse(nullptr, cameraTransform));
+}
+
+void Graphics::SetCameraTransform(XMMATRIX tansform)
 {
 	cameraTransform = tansform;
 }
 
-void
-Graphics::CreateSceneTexture()
+void Graphics::CreateSceneTexture()
 {
 	HRESULT hr;
 	////// Render scene to texture ///////
@@ -107,8 +130,7 @@ Graphics::CreateSceneTexture()
 	pContext->RSSetViewports(1, &viewport);
 }
 
-void
-Graphics::FetchResolution()
+void Graphics::FetchResolution()
 {
 	HRESULT hr;
 	IDXGIFactory* factory;
@@ -133,14 +155,12 @@ Graphics::FetchResolution()
 	factory->Release();
 }
 
-Graphics::Resolution
-Graphics::GetResolution() const
+Resolution Graphics::GetResolution() const
 {
 	return resolution;
 }
 
-void
-Graphics::ClearBuffer()
+void Graphics::ClearBuffer()
 {
 	// Bind render target
 	pContext->OMSetRenderTargets(1, pSceneTarget.GetAddressOf(), pDSV.Get());
@@ -148,14 +168,12 @@ Graphics::ClearBuffer()
 	pContext->ClearDepthStencilView(pDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
 
-ImTextureID
-Graphics::GetSceneTexture()
+ImTextureID Graphics::GetSceneTexture()
 {
 	return pSceneTexture.Get();
 }
 
-void
-Graphics::CreatDepthBuffer()
+void Graphics::CreatDepthBuffer()
 {
 	HRESULT hr;
 

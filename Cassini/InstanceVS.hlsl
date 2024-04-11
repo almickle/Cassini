@@ -1,7 +1,13 @@
-cbuffer VSConstantData
+struct VertexInput
 {
-    matrix viewMatrix;
-    matrix projectionMatrix;
+    float3 pos : POSITION;
+    float3 n : NORMAL;
+    float2 tc : TextureCoordinate;
+};
+
+struct InstanceInput
+{
+    matrix modelMatrix;
 };
 
 struct VSOut
@@ -12,26 +18,30 @@ struct VSOut
     float4 pos : SV_Position;
 };
 
-struct VertexInput
+struct VSInput
 {
-    float3 pos : POSITION;
-    float3 n : NORMAL;
+    float3 pos : Position;
+    float3 n : Normal;
     float2 tc : TextureCoordinate;
 };
 
-struct InstanceInput
+cbuffer GlobalBuffer : register(b0)
 {
-    matrix modelMatrix : INSTANCE;
+    matrix viewMatrix;
+    matrix projectionMatrix;
 };
 
-VSOut main( VertexInput vertex, InstanceInput instance )
+StructuredBuffer<InstanceInput> instanceBuffer : register(t0);
+
+
+VSOut main( VSInput vertex, in uint instanceID : SV_InstanceID)
 {
     VSOut vso = { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f, 0.0f } };
-    vso.worldPos = mul( float4( vertex.pos, 1.0f ), instance.modelMatrix );
+    vso.worldPos = mul( float4( vertex.pos, 1.0f ), instanceBuffer[instanceID].modelMatrix );
     vso.worldPos = mul( float4( vso.worldPos, 1.0f ), viewMatrix );
-    vso.normal = mul( vertex.n, (float3x3) instance.modelMatrix );
+    vso.normal = mul( vertex.n, (float3x3) instanceBuffer[instanceID].modelMatrix );
     vso.normal = mul( vso.normal, (float3x3) viewMatrix );
-    vso.pos = mul( float4( vertex.pos, 1.0f ), instance.modelMatrix );
+    vso.pos = mul( float4( vertex.pos, 1.0f ), instanceBuffer[instanceID].modelMatrix );
     vso.pos = mul( vso.pos, viewMatrix );
     vso.pos = mul( vso.pos, projectionMatrix );
     vso.tc = vertex.tc;

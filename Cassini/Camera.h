@@ -6,43 +6,31 @@
 class Camera :
 	public Entity
 {
-
 public:
-	Camera(Graphics& gfx, ResourceManager& manager) : Entity(gfx, manager, entityID, "Models\\cube.txt", "VertexShader.cso", "PixelShader.cso")
-	{
-		SetPosition({ 0.0f, 0.0f, 1.0f });
-		UpdateCamera(gfx);
-	};
-
-	void UpdateCamera(Graphics& gfx) {
-		XMFLOAT3 pos = { target.x + radius * cos(theta * 3.14f / 180.0f), target.y + height, target.z + radius * sin(theta * 3.14f / 180.0f) };
-		SetPosition(pos);
-		XMMATRIX transform = XMMatrixInverse(nullptr, XMMatrixLookAtLH(XMLoadFloat3(&pos), XMLoadFloat3(&target), XMLoadFloat3(&upDirection)));
-		OverrideTransform(transform);
-		UpdateViewMatrix(gfx, transform);
-	}
-	void SpawnControlWindow()
-	{
-		ImGui::Begin("Camera");
-		ImGui::SliderFloat("Orbit radius", &radius, 1.0f, 500.0f);
-		ImGui::SliderFloat("Orbit angle", &theta, 0.0f, 1440.0f);
-		ImGui::SliderFloat("View height", &height, -500.0f, 500.0f);
-		ImGui::End();
-	}
-	void SetTarget(XMFLOAT3 in_target) {
-		target = in_target;
-	}
-
+	Camera(Graphics& gfx, ResourceManager& manager);
+public:
+	void Update(Graphics& gfx, ResourceManager& manager) override;
+public:
+	void UpdateCamera(Graphics& gfx);
+	void SetTarget(const XMFLOAT3& in_target);
+	void SpawnControlWindow();
+public:
 	static const string entityID;
-
 private:
-	void UpdateViewMatrix(Graphics& gfx, XMMATRIX transform);
+	void UpdateViewMatrix(Graphics& gfx, const XMMATRIX& transform);
 private:
-	string meshPath = "cube.txt";
-private:
-	float radius = 20.0f;
+	float radius = 60.0f;
 	float theta = 270.0f;
-	float height = 25.0f;
-	const XMFLOAT3 upDirection = { 0.0f, 1.0f, 0.0f };
+	float height = 50.0f;
+	XMFLOAT3 upDirection = { 0.0f, 1.0f, 0.0f };
 	XMFLOAT3 target = { 0.0f, 0.0f, 0.0f };
+private:
+	UINT cbIndex;
+private:
+	vector<D3D11_INPUT_ELEMENT_DESC> ld = {
+		{ "Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "Normal", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(Vertex::Position), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TextureCoordinate", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(Vertex::Position) + sizeof(Vertex::Normal), D3D11_INPUT_PER_VERTEX_DATA, 0 }
+	};
+	MeshData mesh = LoadMesh("Models\\cube.obj");
 };

@@ -3,7 +3,6 @@ struct ParticleData
     float3 s;
     float3 v;
 };
-
 struct IntrinsicData
 {
     float mass;
@@ -11,18 +10,22 @@ struct IntrinsicData
     float radius;
 };
 
-cbuffer Constants : register(b0)
+cbuffer StaticBuffer : register(b0)
 {
     float3 minBoundary;
     float3 maxBoundary;
     unsigned int size;
+};
+
+cbuffer DynamicBuffer : register(b1)
+{
     float dt;
 };
 
-//StructuredBuffer<IntrinsicData> bondIndices : register(t2);
 StructuredBuffer<IntrinsicData> intrinsicData : register(t0);
 StructuredBuffer<ParticleData> particle_input : register(t1);
 RWStructuredBuffer<ParticleData> particle_output : register(u0);
+//StructuredBuffer<IntrinsicData> bondIndices : register(t2);
 
 static float k = 8.9876e+9; // N*m^2 / C^2
 static float reg = 1.0f;
@@ -71,7 +74,7 @@ float3 particleCollisionCheck( float3 positionA, float3 positionB, float radiusA
     }
 }
 
-[numthreads(100, 1, 1)]
+[numthreads(1024, 1, 1)]
 void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint index = DTid.x;

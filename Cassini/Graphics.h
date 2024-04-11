@@ -1,5 +1,6 @@
 #pragma once
 #include "ChiliException.h"
+#include "DataTypes.h"
 #include "dxerr.h"
 #include "DxgiInfoManager.h"
 #include "GraphicsThrowMacros.h"
@@ -25,40 +26,29 @@ public:
 	Graphics(ID3D11Device* g_pd3dDevice,
 		ID3D11DeviceContext* g_pd3dDeviceContext,
 		IDXGISwapChain* g_pSwapChain,
-		ID3D11DeviceContext* g_pd3dDeferredContext)
-	{
-		pDevice = g_pd3dDevice;
-		pContext = g_pd3dDeviceContext;
-		pSwap = g_pSwapChain;
-		pDeferredContext = g_pd3dDeferredContext;
-
-		infoManager.Set();
-
-		FetchResolution();
-
-		CreatDepthBuffer();
-		CreateSceneTexture();
-	}
-
+		ID3D11DeviceContext* g_pd3dDeferredContext);
 	void DrawIndexed(UINT count);
-	void DrawInstanced(UINT vertexCount, UINT instanceCount);
-
+	void DrawInstancedIndexed(UINT indexCount, UINT instanceCount);
+	void Dispatch(UINT threadGroupsX, UINT threadGroupsY, UINT threadGroupsZ);
 public:
-	void SetProjection(XMMATRIX proj);
-	XMMATRIX GetProjection() const;
-	void SetCameraTransform(XMMATRIX view);
-	XMMATRIX GetCameraView() const;
-	void SetLighting(PhongLightingData cbData) {
-		lightData = cbData;
-	}
-	PhongLightingData GetLighting() const {
-		return lightData;
-	}
 	void CreateSceneTexture();
 	void CreatDepthBuffer();
 	void ClearBuffer();
+public:
+	void SetProjection(XMMATRIX proj);
+	void SetCameraTransform(XMMATRIX view);
+	void SetLighting(PhongLightingData cbData);
+public:
+	XMMATRIX GetProjection() const;
+	XMMATRIX GetCameraView() const;
+	PhongLightingData GetLighting() const;
 	ImTextureID GetSceneTexture();
-
+	Resolution GetResolution() const;
+public:
+	ComPtr<ID3D11Device> GetDevice() { return pDevice; };
+	ComPtr<ID3D11DeviceContext> GetContext() { return pContext; };
+private:
+	void FetchResolution();
 private:
 	ComPtr<ID3D11Device> pDevice;
 	ComPtr<ID3D11DeviceContext> pContext;
@@ -67,35 +57,13 @@ private:
 	ComPtr<ID3D11DepthStencilView> pDSV;
 	ComPtr<ID3D11RenderTargetView> pSceneTarget;
 	ComPtr<ID3D11ShaderResourceView> pSceneTexture;
-
-public:
-	ComPtr<ID3D11Device> GetDevice() { return pDevice; };
-	ComPtr<ID3D11DeviceContext> GetContext() { return pContext; };
-	ComPtr<ID3D11DeviceContext> GetDeferredContext() { return pDeferredContext; };
-
 private:
 	XMMATRIX projection = XMMatrixIdentity();
 	XMMATRIX cameraView = XMMatrixIdentity();
 	XMMATRIX cameraTransform = XMMatrixIdentity();
-	PhongLightingData lightData = {
-		{ 0.0f, 0.0f, 0.0f },
-		{ 1.0f, 1.0f, 1.0f },
-		{ 0.3f, 0.3f, 0.3f },
-	};
+	PhongLightingData lightData;
 	const float clearColor[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	int frameCount = 0;
-
-private:
-	struct Resolution
-	{
-		int width;
-		int height;
-	} resolution = { 0, 0 };
-	void FetchResolution();
-
-public:
-	Resolution GetResolution() const;
-
+	Resolution resolution = { 0, 0 };
 public:
 	DxgiInfoManager infoManager;
 	DxgiInfoManager& GetInfoManager() { return infoManager; }

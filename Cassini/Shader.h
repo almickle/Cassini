@@ -4,7 +4,7 @@
 
 class Shader
 {
-public:
+protected:
 	~Shader() {};
 public:
 	virtual void Bind(Graphics& gfx) const = 0;

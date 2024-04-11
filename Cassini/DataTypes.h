@@ -4,6 +4,12 @@
 
 using namespace std;
 
+enum ShaderDataTypes {
+	VERTEX_SHADER_BUFFER = 0,
+	COMPUTE_SHADER_BUFFER,
+	PIXEL_SHADER_BUFFER
+};
+
 struct Vertex
 {
 	struct Position
@@ -44,4 +50,13 @@ struct Vec2 {
 struct Resolution {
 	UINT width;
 	UINT height;
+};
+
+struct SimulationBoundary {
+	float xMin;
+	float xMax;
+	float yMin;
+	float yMax;
+	float zMin;
+	float zMax;
 };

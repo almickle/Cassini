@@ -4,10 +4,11 @@
 
 class Buffer
 {
-public:
+protected:
 	~Buffer() {};
 	Buffer() {};
 	Buffer(UINT in_slot) : slot(in_slot) {};
+public:
 	virtual void Bind(Graphics& gfx) const = 0;
 protected:
 	ComPtr<ID3D11Buffer> pBuffer;

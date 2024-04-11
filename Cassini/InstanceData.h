@@ -4,26 +4,6 @@
 
 using namespace DirectX;
 
-enum ShaderDataTypes {
-	VERTEX_SHADER_BUFFER = 0,
-	COMPUTE_SHADER_BUFFER,
-	PIXEL_SHADER_BUFFER
-};
-
-enum ResourceTypes {
-	VERTEX_BUFFER = 0,
-	INDEX_BUFFER,
-	INPUT_LAYOUT,
-	VERTEX_SHADER,
-	PIXEL_SHADER,
-	COMPUTE_SHADER,
-	PRIMITIVE_TOPOLOGY,
-	SAMPLER,
-	CONSTANT_BUFFER,
-	RASTERIZER,
-	TEXTURE
-};
-
 struct ModelViewProjection
 {
 	XMMATRIX model;
@@ -31,20 +11,33 @@ struct ModelViewProjection
 	XMMATRIX projection;
 };
 
-struct alignas(16) PhongLightingData {
+struct ViewProjection
+{
+	XMMATRIX view;
+	XMMATRIX projection;
+};
+
+struct ModelColor {
+	alignas(16) XMFLOAT3 color;
+};
+
+struct PhongLightingData {
 	alignas(16) XMFLOAT3 pos;
 	alignas(16) XMFLOAT3 color;
 	alignas(16) XMFLOAT3 ambient;
 };
 
-struct LightBuffer {
-	alignas(16) PhongLightingData lighting;
-	alignas(16) XMFLOAT3 modelColor;
-};
+
 
 struct ParticleData {
 	XMFLOAT3 s;
 	XMFLOAT3 v;
+};
+
+struct IntrinsicParticleData {
+	float mass;
+	float charge;
+	float radius;
 };
 
 struct BondData {
@@ -54,15 +47,12 @@ struct BondData {
 	unsigned short ptclb;
 };
 
-struct IntrinsicParticleData {
-	float mass;
-	float charge;
-	float radius;
-};
-
-struct alignas(16) SimulationData {
+struct alignas(16) StaticSimulationData {
 	alignas(16) XMFLOAT3 minBoundary;
 	alignas(16) XMFLOAT3 maxBoundary;
 	unsigned int size;
+};
+
+struct alignas(16) DynamicSimulationData {
 	float dt;
 };

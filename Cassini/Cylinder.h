@@ -5,11 +5,8 @@ class Cylinder :
 	public Entity
 {
 public:
-	Cylinder(Graphics& gfx, ResourceManager& manager) :
-		Entity(gfx, manager, entityID, "Models\\cylinder.txt", "PhongVS.cso", "PhongPS.cso") {
-
-	}
-
+	Cylinder(Graphics& gfx, ResourceManager& manager);
+public:
 	static const string entityID;
 };
 
