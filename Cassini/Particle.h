@@ -8,7 +8,6 @@ public:
 	Particle(Graphics& gfx, ResourceManager& manager);
 	Particle(Graphics& gfx, ResourceManager& manager, const string& systemID, const float& in_radius, const float& in_charge, XMFLOAT3 in_pos);
 public:
-	static const string entityID;
 	static const string GetEntityID();
 public:
 	const float GetCharge() const;
@@ -20,4 +19,6 @@ private:
 	const float charge = 0.0f;
 private:
 	XMFLOAT3 velocity = { 0.0f, 0.0f, 0.0f };
+private:
+	static const string entityID;
 };

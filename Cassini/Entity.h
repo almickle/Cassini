@@ -16,10 +16,11 @@ public:
 	XMMATRIX GetTransform() const;
 	XMFLOAT3 GetModelColor() const;
 	XMFLOAT3 GetPosition() const;
+	XMFLOAT3 GetRotation() const;
 public:
 	void SetPosition(const XMFLOAT3& in_position);
 	void SetModelColor(const XMFLOAT3& color);
-	void SetOrientation(const XMFLOAT3& in_orientation);
+	void SetOrientation(const XMFLOAT3& in_rotation);
 	void SetScale(const XMFLOAT3& in_scale);
 	void OverrideTransform(const XMMATRIX& transform);
 public:
@@ -29,10 +30,10 @@ private:
 private:
 	XMFLOAT3 modelColor = { 0.3f, 0.3f, 0.35f };
 	XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT3 orientation = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 rotation = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 scale = { 1.0f, 1.0f, 1.0f };
 	XMMATRIX transformation =
-		XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
+		XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
 		XMMatrixScaling(scale.x, scale.y, scale.z) *
 		XMMatrixTranslation(position.x, position.y, position.z);
 protected:

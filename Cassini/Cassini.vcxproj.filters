@@ -82,6 +82,12 @@
     <Filter Include="Header Files\Entities\Props">
       <UniqueIdentifier>{4dd49f14-9873-475a-869a-e107df47e4f8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Systems">
+      <UniqueIdentifier>{c27ef2b9-2071-4ee2-b000-4785bb58e432}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Systems">
+      <UniqueIdentifier>{1c303090-8a68-4f92-a46c-ce322ea60efc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -195,10 +201,16 @@
     <ClCompile Include="ElectricField.cpp">
       <Filter>Source Files\Old</Filter>
     </ClCompile>
-    <ClCompile Include="ParticleSystem.cpp">
-      <Filter>Source Files\Old</Filter>
+    <ClCompile Include="Bond.cpp">
+      <Filter>Source Files\Entities</Filter>
     </ClCompile>
     <ClCompile Include="System.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files\Systems</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -332,13 +344,7 @@
     <ClInclude Include="Keyboard.h">
       <Filter>Header Files\Aux</Filter>
     </ClInclude>
-    <ClInclude Include="Bond.h">
-      <Filter>Header Files\Old</Filter>
-    </ClInclude>
     <ClInclude Include="ElectricField.h">
-      <Filter>Header Files\Old</Filter>
-    </ClInclude>
-    <ClInclude Include="ParticleSystem.h">
       <Filter>Header Files\Old</Filter>
     </ClInclude>
     <ClInclude Include="Molecule.h">
@@ -350,7 +356,16 @@
     <ClInclude Include="RegistryData.h">
       <Filter>Header Files\Data</Filter>
     </ClInclude>
+    <ClInclude Include="Bond.h">
+      <Filter>Header Files\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
     <ClInclude Include="System.h">
+      <Filter>Header Files\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -411,6 +426,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="InstancePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="RungeKuttaCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

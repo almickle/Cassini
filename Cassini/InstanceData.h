@@ -42,15 +42,16 @@ struct IntrinsicParticleData {
 
 struct BondData {
 	float bondEnergy;
-	float length;
-	unsigned short ptcla;
-	unsigned short ptclb;
+	float equillibriumLength;
+	unsigned int particle;
+	unsigned int bondedPtcl;
 };
 
 struct alignas(16) StaticSimulationData {
 	alignas(16) XMFLOAT3 minBoundary;
 	alignas(16) XMFLOAT3 maxBoundary;
 	unsigned int size;
+	unsigned int boundCount;
 };
 
 struct alignas(16) DynamicSimulationData {

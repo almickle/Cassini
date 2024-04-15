@@ -3,6 +3,8 @@
 #include "imgui.h"
 #include "InstanceData.h"
 
+class ParticleSystem;
+
 class Camera :
 	public Entity
 {
@@ -13,17 +15,18 @@ public:
 public:
 	void UpdateCamera(Graphics& gfx);
 	void SetTarget(const XMFLOAT3& in_target);
-	void SpawnControlWindow();
+	void SpawnControlWindow(ParticleSystem* system);
 public:
 	static const string entityID;
 private:
 	void UpdateViewMatrix(Graphics& gfx, const XMMATRIX& transform);
 private:
-	float radius = 60.0f;
+	float radius = 2000.0f;
 	float theta = 270.0f;
-	float height = 50.0f;
+	float height = 200.0f;
 	XMFLOAT3 upDirection = { 0.0f, 1.0f, 0.0f };
 	XMFLOAT3 target = { 0.0f, 0.0f, 0.0f };
+	int targetIndex = 0;
 private:
 	UINT cbIndex;
 private:

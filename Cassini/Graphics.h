@@ -41,6 +41,7 @@ public:
 public:
 	XMMATRIX GetProjection() const;
 	XMMATRIX GetCameraView() const;
+	ComPtr<ID3D11DepthStencilView> GetDepthStencilView() const;
 	PhongLightingData GetLighting() const;
 	ImTextureID GetSceneTexture();
 	Resolution GetResolution() const;

@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "ParticleSystem.h"
 
 const string Camera::entityID = "Camera";
 
@@ -34,12 +35,18 @@ void Camera::UpdateViewMatrix(Graphics& gfx, const XMMATRIX& transform) {
 	gfx.SetCameraTransform(transform);
 }
 
-void Camera::SpawnControlWindow()
+void Camera::SpawnControlWindow(ParticleSystem* system)
 {
 	ImGui::Begin("Camera");
-	ImGui::SliderFloat("Orbit radius", &radius, 1.0f, 500.0f);
+	ImGui::SliderFloat("Orbit radius", &radius, 1.0f, 5000.0f);
 	ImGui::SliderFloat("Orbit angle", &theta, 0.0f, 1440.0f);
 	ImGui::SliderFloat("View height", &height, -500.0f, 500.0f);
+	ImGui::Text("Target");
+	if (ImGui::Button("Centroid"))
+		SetTarget(system->GetCentroid());
+	ImGui::InputInt("Molecule", &targetIndex);
+	if (ImGui::Button("Set"))
+		SetTarget(system->GetBond(targetIndex)->GetMove());
 	ImGui::End();
 }
 

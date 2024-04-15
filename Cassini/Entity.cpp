@@ -35,8 +35,8 @@ void Entity::SetPosition(const XMFLOAT3& in_position) {
 void Entity::SetModelColor(const XMFLOAT3& color) {
 	modelColor = color;
 }
-void Entity::SetOrientation(const XMFLOAT3& in_orientation) {
-	orientation = in_orientation;
+void Entity::SetOrientation(const XMFLOAT3& in_rotation) {
+	rotation = in_rotation;
 	CalculateTransformation();
 }
 void Entity::SetScale(const XMFLOAT3& in_scale)
@@ -46,7 +46,7 @@ void Entity::SetScale(const XMFLOAT3& in_scale)
 }
 
 void Entity::CalculateTransformation() {
-	transformation = XMMatrixRotationRollPitchYaw(orientation.x, orientation.y, orientation.z) *
+	transformation = XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z) *
 		XMMatrixScaling(scale.x, scale.y, scale.z) *
 		XMMatrixTranslation(position.x, position.y, position.z);
 }
@@ -64,13 +64,17 @@ XMFLOAT3 Entity::GetModelColor() const {
 XMFLOAT3 Entity::GetPosition() const {
 	return position;
 }
+XMFLOAT3 Entity::GetRotation() const
+{
+	return rotation;
+}
 
 MeshData Entity::LoadMesh(const string& path)
 {
 	struct MeshData meshData;
 	Assimp::Importer importer;
 
-	const auto model = importer.ReadFile(path, aiProcess_JoinIdenticalVertices);
+	const auto model = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 	const auto mesh = model->mMeshes[0];
 
 	for (UINT i = 0; i < mesh->mNumVertices; i++)

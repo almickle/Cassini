@@ -1,4 +1,5 @@
 #pragma once
+#include "Animation.h"
 #include "Entities.h"
 #include "GDIPlusManager.h"
 #include "Graphics.h"
@@ -18,7 +19,7 @@ using namespace std;
 class Scene
 {
 public:
-	Scene(Graphics& gfx, ResourceManager& manager);
+	Scene(Graphics& gfx, ResourceManager& manager, Resolution resolution);
 	void UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager);
 	//void AddEntity(Entity* entity);
 	//void FindCentroid();
@@ -28,6 +29,7 @@ private:
 	Camera* camera;
 	Grid* grid;
 	ParticleSystem* system;
+	Animation* animation;
 private:
 	int frameCount = 0;
 	float frameRate = 0.0f;
@@ -35,6 +37,7 @@ private:
 	float displayFT = 0.0f;
 	float dt = 0.0f;
 private:
+	bool watch = false;
 	float simulationSpeed = 0.0f;
 	XMFLOAT3 worldCenter = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 simulationCenter = { 0.0f, 50.0f, 0.0f };

@@ -8,7 +8,8 @@ protected:
 	System(Graphics& gfx, ResourceManager& manager, const string& systemID);
 	virtual ~System() {};
 public:
-	virtual void Update(Graphics& gfx, ResourceManager& manager) = 0;
+	virtual void Update(Graphics& gfx, ResourceManager& manager) {};
+	virtual void Update(Graphics& gfx, ResourceManager& manager, float dt) {};
 private:
 	const string systemID;
 };

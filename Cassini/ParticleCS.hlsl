@@ -1,13 +1,20 @@
 struct ParticleData
 {
-    float3 s;
-    float3 v;
+    float3 s; // pm
+    float3 v; // pm / ps
 };
 struct IntrinsicData
 {
-    float mass;
-    float charge;
-    float radius;
+    float mass; 
+    float charge; // e
+    float radius; // pm
+};
+struct BondData
+{
+    float bondEnergy;
+    float equillibriumLength; // pm
+    uint ptcla;
+    uint ptclb;
 };
 
 cbuffer StaticBuffer : register(b0)
@@ -15,20 +22,25 @@ cbuffer StaticBuffer : register(b0)
     float3 minBoundary;
     float3 maxBoundary;
     unsigned int size;
+    unsigned int boundCount;
 };
 
 cbuffer DynamicBuffer : register(b1)
 {
-    float dt;
+    float dt; // picoseconds
 };
 
 StructuredBuffer<IntrinsicData> intrinsicData : register(t0);
 StructuredBuffer<ParticleData> particle_input : register(t1);
-RWStructuredBuffer<ParticleData> particle_output : register(u0);
-//StructuredBuffer<IntrinsicData> bondIndices : register(t2);
+StructuredBuffer<BondData> bondingPairs : register(t2);
 
-static float k = 8.9876e+9; // N*m^2 / C^2
-static float reg = 1.0f;
+RWStructuredBuffer<ParticleData> particle_output : register(u0);
+
+static float atomicRadius = 50.0f; // pm
+static float bondLength = 100.0f; // pm
+
+static float kq2 = 138954.2435; // amu*pm3/ps2
+static float sK = 20000.0f;
 
 float3 boundaryCollisionCheck( float3 positionFinal, float3 velocityFinal )
 {
@@ -79,6 +91,8 @@ void main( uint3 DTid : SV_DispatchThreadID )
 {
     uint index = DTid.x;
     
+    float3 netForce = { 0.0f, 0.0f, 0.0f };
+
     float3 fieldPoint = particle_input[index].s;
     float3 fieldIntensity = { 0.0f, 0.0f, 0.0f };
     float3 collisionVelocity = particle_input[index].v;
@@ -89,19 +103,34 @@ void main( uint3 DTid : SV_DispatchThreadID )
             float3 ptclPos = particle_input[i].s;
             float dist = max( intrinsicData[index].radius + intrinsicData[i].radius, distance( fieldPoint, ptclPos ) );
             float3 dir = normalize( fieldPoint - ptclPos );
-            float3 intensity = ( k * intrinsicData[i].charge / pow( dist, 2 ) ) * dir;
+            float3 intensity = ( kq2 * intrinsicData[i].charge / pow( dist, 2 ) ) * dir;
             fieldIntensity += intensity;
 
-            collisionVelocity = particleCollisionCheck( fieldPoint, ptclPos, intrinsicData[index].radius, intrinsicData[i].radius, collisionVelocity );
+            //collisionVelocity = particleCollisionCheck( fieldPoint, ptclPos, intrinsicData[index].radius, intrinsicData[i].radius, collisionVelocity );
         }
     }
-
+    float3 bondForce = { 0.0f, 0.0f, 0.0f };
+    ParticleData targetPtcl = particle_input[index];
+    for (unsigned int j = 0; j < boundCount; j++)
+    {
+        if (bondingPairs[j].ptcla == index)
+        {
+            ParticleData bondedPtcl = particle_input[bondingPairs[j].ptclb];
+            uint bondedIndex = bondingPairs[j].ptclb;
+            float dist = max( intrinsicData[index].radius + intrinsicData[bondedIndex].radius, distance( targetPtcl.s, bondedPtcl.s ) );
+            float3 dir = normalize( targetPtcl.s - bondedPtcl.s );
+            float dx = ( dist - bondingPairs[j].equillibriumLength ) / 2.0f;
+            bondForce += dir * (-sK * dx);
+        }
+    }
     float3 electricForce = fieldIntensity * intrinsicData[index].charge;
-    float3 acceleration = electricForce / intrinsicData[index].mass;
+    netForce += electricForce;
+    netForce += bondForce;
+    float3 acceleration = netForce / ( intrinsicData[index].mass );
     float3 velocityFinal = collisionVelocity + acceleration * dt;
-    float3 positionFinal = particle_input[index].s + ( velocityFinal + collisionVelocity ) * dt / 2;
+    float3 positionFinal = particle_input[index].s + ( velocityFinal + collisionVelocity ) * dt / 2.0f;
     
-    velocityFinal = boundaryCollisionCheck(positionFinal, velocityFinal);
+    //velocityFinal = boundaryCollisionCheck(positionFinal, velocityFinal);
     
     particle_output[index].s = positionFinal;
     particle_output[index].v = velocityFinal;

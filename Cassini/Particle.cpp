@@ -13,7 +13,7 @@ Particle::Particle(Graphics& gfx, ResourceManager& manager, const string& system
 	: Sphere(gfx, manager, entityID, systemID, in_radius, in_charge == 0.0f ? XMFLOAT3{ 1.0f, 1.0f, 0.0f } : in_charge > 0.0f ? XMFLOAT3{ 0.0f, 0.0f, 1.0f } : XMFLOAT3{ 1.0f, 0.0f, 0.0f }, in_pos),
 	charge(in_charge)
 {
-	XMFLOAT3 color = in_charge == 0.0f ? XMFLOAT3{ 1.0f, 1.0f, 0.0f } : in_charge > 0.0f ? XMFLOAT3{ 0.0f, 0.0f, 1.0f } : XMFLOAT3{ 1.0f, 0.0f, 0.0f };
+
 }
 
 const float Particle::GetCharge() const {

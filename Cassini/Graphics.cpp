@@ -60,6 +60,12 @@ void Graphics::SetCameraTransform(XMMATRIX tansform)
 	cameraTransform = tansform;
 }
 
+ComPtr<ID3D11DepthStencilView> Graphics::GetDepthStencilView() const
+{
+	return pDSV;
+}
+
+
 void Graphics::CreateSceneTexture()
 {
 	HRESULT hr;

@@ -164,7 +164,7 @@ wWinMain(_In_ HINSTANCE hInstance,
 	Graphics* gfx = new Graphics(g_pd3dDevice, g_pd3dDeviceContext, g_pSwapChain, g_pd3dDeferredContext);
 	GUI* gui = new GUI();
 	ResourceManager* manager = ResourceManager::Get();
-	Scene* scene = new Scene(*gfx, *manager);
+	Scene* scene = new Scene(*gfx, *manager, Resolution{ (unsigned int)gui->GetSceneSize().x, (unsigned int)gui->GetSceneSize().y });
 
 	// Main loop
 	bool done = false;

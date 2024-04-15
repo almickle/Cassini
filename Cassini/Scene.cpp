@@ -1,24 +1,43 @@
 #include "ParticleSystem.h"
 #include "Scene.h"
 
-Scene::Scene(Graphics& gfx, ResourceManager& manager)
+Scene::Scene(Graphics& gfx, ResourceManager& manager, Resolution resolution)
 {
 	manager.CreateGlobalDynamicConstantBuffer(gfx, ViewProjection{ gfx.GetCameraView(), gfx.GetProjection() }, VERTEX_SHADER_BUFFER, 0u);
 	manager.CreateGlobalDynamicConstantBuffer(gfx, PhongLightingData{ gfx.GetLighting() }, PIXEL_SHADER_BUFFER, 0u);
 	light = new PointLight(gfx, manager);
 	camera = new Camera(gfx, manager);
-	grid = new Grid(gfx, manager);
-	system = new ParticleSystem(gfx, manager, 10000);
+	//grid = new Grid(gfx, manager);
+	system = new ParticleSystem(gfx, manager, 10);
+	camera->SetTarget(system->GetParticle(1u)->GetPosition());
+	animation = new Animation(gfx, manager, system, camera, light);
 }
 
 void Scene::UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager)
 {
+	ImGui::Begin("Simulation");
+	if (!watch)
+		if (ImGui::Button("Bake")) {
+			animation->Bake(gfx, manager, Resolution{ (UINT)size.x, (UINT)size.y });
+			watch = true;
+			auto start = chrono::steady_clock::now();
+			animation->SetPlaybackStart(start);
+		}
+	if (watch)
+		animation->Watch(gfx, size);
+
+	ImGui::End();
+	if (!watch)
+		return;
 	auto start = steady_clock::now();
-	gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 1000.0f));
+	gfx.SetProjection(XMMatrixPerspectiveLH(1.0f, size.y / size.x, 0.5f, 10000.0f));
 	manager.SpawnControlWindow();
 	system->SpawnControlWindow();
-	camera->SpawnControlWindow();
-	camera->SetTarget(worldCenter);
+	camera->SpawnControlWindow(system);
+	//camera->SetTarget(system->GetBond(0)->GetMove());
+	//camera->SetTarget(simulationCenter);
+	//camera->SetTarget(worldCenter);
+	//camera->SetTarget(system->GetCentroid());
 	camera->UpdateCamera(gfx);
 	light->UpdateLight(gfx);
 	light->SpawnControlWindow();
@@ -26,10 +45,10 @@ void Scene::UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager)
 	for (auto& system : manager.GetSystemList())
 	{
 		manager.BindResources(gfx, system.first, SYSTEM);
+		Scene::system->RenderSnapshot(gfx, manager, animation->GetSnapshot());
 		for (auto& entity : manager.GetSystemEntityList(system.first))
 		{
 			manager.BindResources(gfx, system.first, entity.first);
-			manager.GetSystemInstances(system.first)[0]->Update(gfx, manager);
 			manager.DrawSystemEntityInstances(gfx, system.first, entity.first);
 		}
 	}
@@ -54,15 +73,6 @@ void Scene::UpdateScene(Graphics& gfx, ImVec2 size, ResourceManager& manager)
 	};
 	SpawnControlWindow();
 }
-
-//void Scene::FindCentroid() {
-//	centroid = { 0.0f, 0.0f, 0.0f };
-//	for (auto& atom : particles) {
-//		XMFLOAT3 pos = atom->GetPosition();
-//		XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) + XMLoadFloat3(&pos)));
-//	}
-//	XMStoreFloat3(&centroid, (XMLoadFloat3(&centroid) / particles.size()));
-//}
 
 void Scene::SpawnControlWindow()
 {
